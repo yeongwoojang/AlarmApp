@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="count"
+            type="Integer" />
+    </data>
+
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout
+        android:id="@+id/slidingview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        app:umanoOverlay="true"
+        app:umanoPanelHeight="0dp"
+        app:umanoDragView="@id/dragview"
+        app:umanoShadowHeight="10dp"
+        tools:context=".view.activity.MainActivity"
+        >
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/main_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/style_toolbar"
+            >
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:background="@color/blue_gray700"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/baseline_bed_24" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/nanum_square_ac_l"
+                    android:gravity="center"
+                    android:paddingLeft="10dp"
+                    android:text="알람"
+                    android:textColor="@color/white"
+                    android:textSize="30sp" />
+
+                <ImageView
+                    android:id="@+id/btn_add_alarm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginRight="10dp"
+                    android:src="@drawable/custom_add_btn" />
+            </androidx.appcompat.widget.Toolbar>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/alarm_rv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <include
+            android:id="@+id/dragview"
+            layout="@layout/bottom_sliding_view"/>
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
+</layout>

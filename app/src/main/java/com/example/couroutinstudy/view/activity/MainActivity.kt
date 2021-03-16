@@ -1,55 +1,69 @@
 package com.example.couroutinstudy.view.activity
 
 import android.annotation.SuppressLint
-import android.content.res.Resources
-import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.view.ViewGroup
-import android.view.animation.AnimationUtils
-import android.widget.FrameLayout
-import android.widget.LinearLayout
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.marginBottom
-import androidx.core.view.marginTop
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.couroutinstudy.R
 import com.example.couroutinstudy.databinding.ActivityMainBinding
-import com.example.couroutinstudy.databinding.BottomSlidingViewBinding
 import com.example.couroutinstudy.model.vo.Alarm
-import com.example.couroutinstudy.util.SlidingUpPanelResizeAnimation
 import com.example.couroutinstudy.view.adapter.AlarmAdapter
+import com.example.couroutinstudy.view.fragment.AlarmMainFrag
+import com.example.couroutinstudy.view.fragment.DayOfWeekFrag
+import com.example.couroutinstudy.viewmodel.BaseViewModel
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
-import kotlinx.android.synthetic.main.activity_main.view.*
-import kotlinx.android.synthetic.main.bottom_sliding_view.view.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Default
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class MainActivity : AppCompatActivity() {
 
     private var items = ArrayList<Alarm>()
     private lateinit var binding: ActivityMainBinding
+    lateinit var time: String
 
-    companion object{
-        val TAG = MainActivity::class.java.simpleName
+//    viewModel을 늦은 초기화 하기위한 벙법
+//    private lateinit var viewModel : BaseViewModel
+
+
+    companion object {
+        val TAG = MainActivity::class.java.simpleName //로그를 찍기 위한 변수
+
+        // 어떤 프래그먼트로 이동할 지 결정하는 FLAG
+        const val ALARM_MAIN_FRAGMENT  = 0
+        const val DAY_OF_WEEK_FRAGMENT = 1
+        const val SOUNT_FRAGMENT  = 2
     }
+    private val viewModel by viewModels<BaseViewModel>() //androidx.activity 패키지에 정의된 함수를 이용한 뷰모델 초기화 방법
+    private lateinit var fragmentManager : FragmentManager
+    private  lateinit var fragmentTransaction : FragmentTransaction
+    private val alarmMainFrag = AlarmMainFrag()
+    private val dayOfWeekFrag = DayOfWeekFrag()
 
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "onStart: ")
+        initFragment(alarmMainFrag) //초기 slidingView 설정
+
+    }
+    
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+        
+        fragmentManager = supportFragmentManager //프래그먼트매니저 초기회
 
+        
+        //context를 사용 가능한 시점에서 늦은 뷰모델 초기화 방법
+//        viewModel = ViewModelProvider(this)[BaseViewModel::class.java]
         val adapter = AlarmAdapter()
         binding.alarmRv.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         binding.alarmRv.adapter = adapter
@@ -61,22 +75,59 @@ class MainActivity : AppCompatActivity() {
 
 //        val screenHeight = resources.displayMetrics.heightPixels //디바이스의 height값
 
-        binding.dragview.edtTime.let{
-            it.isCursorVisible = false //시간 editText 커서 제거
-               it.setText("00:00")
-        }
 
+        binding.slidingview.let {
+            it.isTouchEnabled = false
+        }
 
         binding.btnAddAlarm.setOnClickListener { // + 버튼 클릭 이벤트
             //slidngPannel을 연다
-            binding.slidingview.panelState = SlidingUpPanelLayout.PanelState.EXPANDED 
+           viewModel.openSlide()
         }
 
-        binding.dragview.btnCancel.setOnClickListener {// 취소 버튼 클릭 이벤트
-            //slidngPannel을 닫는다
-            binding.slidingview.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
-        }
+        viewModel.slideLd.observe(this, Observer { //슬라이드 여부를 관찰하면서 뷰를 올릴지 내릴지 결정
+            if(it==false){
+                binding.slidingview.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
+            }else{
+                binding.slidingview.panelState = SlidingUpPanelLayout.PanelState.EXPANDED
+            }
+        })
+
+        viewModel.fragIdLd.observe(this, Observer { fragId->
+            Log.d(TAG, "${fragId}")
+            when(fragId){
+                ALARM_MAIN_FRAGMENT ->{
+                    initFragment(alarmMainFrag)
+                }
+                DAY_OF_WEEK_FRAGMENT ->{
+                    Log.d(TAG, "onCreate: ${fragId}")
+                    initFragment(dayOfWeekFrag)
+                }
+                SOUNT_FRAGMENT ->{
+                    TODO("사운드 프래그먼트가 올 곳")
+                }
+            }
+
+        })
 
     }
+
+    override fun onBackPressed() {
+        if(supportFragmentManager.backStackEntryCount==1){
+            binding.slidingview.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
+        }else{
+            super.onBackPressed()
+        }
+    }
+
+    fun initFragment(fragment : Fragment){ //dragView로 설정되어있는 뷰를 다른 프래그먼트로 끼워주는 메소드
+        fragmentTransaction = fragmentManager.beginTransaction() //프래그먼트 트랜잭션 초기화
+        fragmentTransaction.setCustomAnimations(R.anim.enter_from_right, R.anim.exit_to_right, R.anim.enter_from_right, R.anim.exit_to_right)
+        fragmentTransaction.addToBackStack(null)
+        fragmentTransaction.replace(R.id.dragview,fragment)
+        fragmentTransaction.commit()
+    }
+
+
 }
 

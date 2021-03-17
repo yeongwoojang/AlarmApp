@@ -3,13 +3,14 @@
     <!-- Border -->
     <item>
         <shape>
-            <solid android:color="@color/gray50"></solid>
+            <solid
+                android:color="@color/gray50"></solid>
         </shape>
 
     </item>
     <!-- Body -->
     <item
-        android:bottom="0.5dp"
+        android:bottom="0.8dp"
         >
         <shape>
             <solid android:color="@color/blue_gray500"></solid>

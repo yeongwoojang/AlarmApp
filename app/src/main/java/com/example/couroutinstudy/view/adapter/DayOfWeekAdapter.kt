@@ -8,11 +8,14 @@ import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.couroutinstudy.R
 import com.example.couroutinstudy.databinding.ItemDayOfWeekBinding
+import com.example.couroutinstudy.model.vo.Alarm
 import com.example.couroutinstudy.model.vo.DayOfWeek
+import com.example.couroutinstudy.viewmodel.BaseViewModel
 
 
-class DayOfWeekAdapter() : RecyclerView.Adapter<DayOfWeekAdapter.DayOfWeekViewHolder>() {
+class DayOfWeekAdapter(val viewModel : BaseViewModel,val alarm : Alarm) : RecyclerView.Adapter<DayOfWeekAdapter.DayOfWeekViewHolder>() {
     private var thisObj = this
+    private var items : List<DayOfWeek> = mutableListOf()
 
     inner class DayOfWeekViewHolder(private val binding: ItemDayOfWeekBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -27,10 +30,9 @@ class DayOfWeekAdapter() : RecyclerView.Adapter<DayOfWeekAdapter.DayOfWeekViewHo
         }
     }
 
-    private var items = ArrayList<DayOfWeek>()
-
-    init {
-        initData()
+    fun updateItem(items : List<DayOfWeek>){
+        this.items = items
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DayOfWeekViewHolder {
@@ -46,23 +48,13 @@ class DayOfWeekAdapter() : RecyclerView.Adapter<DayOfWeekAdapter.DayOfWeekViewHo
     override fun onBindViewHolder(holder: DayOfWeekViewHolder, position: Int) {
         val dayOfWeek = items[position]
         holder.bind(dayOfWeek, position)
-
-
     }
 
     fun itemClick(position: Int) {
         items[position].isCheck = !items[position].isCheck
+        alarm.dayOfWeek[position].isCheck = items[position].isCheck
+        viewModel.setAlarm(alarm)
         notifyItemChanged(position)
-    }
-
-    private fun initData() {
-        items.add(DayOfWeek("월요일마다", false))
-        items.add(DayOfWeek("화요일마다", false))
-        items.add(DayOfWeek("수요일마다", false))
-        items.add(DayOfWeek("목요일마다", false))
-        items.add(DayOfWeek("금요일마다", false))
-        items.add(DayOfWeek("토요일마다", false))
-        items.add(DayOfWeek("일요일마다", false))
     }
 }
 

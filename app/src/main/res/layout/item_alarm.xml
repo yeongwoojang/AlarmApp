@@ -3,6 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <variable
+            name="adapter"
+            type="com.example.couroutinstudy.view.adapter.AlarmAdapter" />
+        <variable
             name="position"
             type="Integer" />
         <variable
@@ -43,7 +46,7 @@
             android:layout_weight="3"
             />
         <ToggleButton
-            android:id="@+id/btn_toggle"
+            android:id="@+id/btn_active_alarm"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@drawable/custom_toggle"
@@ -51,8 +54,13 @@
             android:textOff=""
             android:layout_gravity="end"
             android:layout_weight="0.5"
+            android:onClick="@{()->adapter.activeALarm(position)}"
+            app:isActive="@{alarm}"
             />
         </LinearLayout>
-
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/gray50"/>
     </LinearLayout>
 </layout>

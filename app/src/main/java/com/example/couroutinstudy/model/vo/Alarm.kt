@@ -38,4 +38,4 @@ class Alarm() :Serializable{
 // apPm : 오전 오후 여부
 // time : 알람이 울릴 시간
 // isRepeat : 설정한 알림이 한번만 울릴 것인지 아니면 지정한 시간에 매일 울릴 것인지 결정
-// alarmDayOfWeek : 알람이 몇요일마다 울릴 것인지에 대한 정보를 담고있는 리스트
+// dayOfWeek : 알람이 몇요일마다 울릴 것인지에 대한 정보를 담고있는 리스트

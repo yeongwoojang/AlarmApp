@@ -1,8 +1,12 @@
 package com.example.couroutinstudy.view.fragment
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,9 +16,17 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.couroutinstudy.databinding.FragmentAlarmMainBinding
 import com.example.couroutinstudy.model.vo.Alarm
+import com.example.couroutinstudy.model.vo.DayOfWeek
+import com.example.couroutinstudy.model.vo.Test
+import com.example.couroutinstudy.util.receiver.AlarmReceiver
 import com.example.couroutinstudy.view.activity.MainActivity
 import com.example.couroutinstudy.viewmodel.BaseViewModel
+import java.io.Serializable
+import java.text.SimpleDateFormat
+import java.time.Year
 import java.util.*
+import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 class AlarmMainFrag : Fragment() {
 
@@ -28,6 +40,9 @@ class AlarmMainFrag : Fragment() {
     private lateinit var viewModel: BaseViewModel //뷰모델 객체
     private lateinit var mActivity: MainActivity
     private lateinit var alarm: Alarm//알람정보를 저장할 객체
+
+
+    private var alarmManager: AlarmManager? = null
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mActivity = activity as MainActivity
@@ -56,7 +71,8 @@ class AlarmMainFrag : Fragment() {
         alarm = Alarm()
         //취소버튼 클릭 이벤트
         binding.btnCancel.setOnClickListener {
-            alarm = Alarm() // slidingView가 닫히고 다시 열릴 떄 onViewCreated를 타지 않게 했기 때문에 alarm객체를 다시 초기화한다.
+            alarm =
+                Alarm() // slidingView가 닫히고 다시 열릴 떄 onViewCreated를 타지 않게 했기 때문에 alarm객체를 다시 초기화한다.
 //            viewModel.setAlarm(alarm)
             viewModel.updateTime(0, 0) // 알람객체의 hourOfDay와 minute를 0으로 초기화(Default = null)
             viewModel.closeSlide() //취소 버튼 클릭 시 슬라이드 닫음
@@ -67,8 +83,11 @@ class AlarmMainFrag : Fragment() {
             //알림 저장 버튼 클릭 시 실행되어야 할 코드 작성
             checkAlarmData() //alarm null Check
 //            alarm?.let { alarm -> viewModel.setAlarm(alarm) }
+            registAlarm(alarm)
             viewModel.insertAlarm(alarm)
-            alarm = Alarm() // slidingView가 닫히고 다시 열릴 떄 onViewCreated를 타지 않게 했기 때문에 alarm객체를 다시 초기화한다.
+
+            alarm =
+                Alarm() // slidingView가 닫히고 다시 열릴 떄 onViewCreated를 타지 않게 했기 때문에 alarm객체를 다시 초기화한다.
 //            viewModel.setAlarm(alarm)
             viewModel.updateTime(0, 0)
             viewModel.closeSlide()
@@ -100,11 +119,9 @@ class AlarmMainFrag : Fragment() {
 
         binding.btnActiveRepeatAlarm.setOnClickListener {
             //다시알림 메뉴를 활성화 했을 때 실행되어야 할 코드 작성
-            alarm?.let { alarm ->
-                alarm.isRepeat = !alarm.isRepeat
-                checkAlarmData() //alarm null Check
-                viewModel.setAlarm(alarm)
-            }
+            alarm.isRepeat = !alarm.isRepeat
+            checkAlarmData() //alarm null Check
+            viewModel.setAlarm(alarm)
 
         }
         //프래그먼트가 내려갔다가 다시 올라와도 시간을 유지시키기 위한 timeLiveData observe
@@ -154,7 +171,7 @@ class AlarmMainFrag : Fragment() {
                 Log.d(TAG, "BuildVersion: Higher M ")
                 alarm.amPm = if (binding.timePicker.hour < 12) "오전" else "오후"
                 val hour: Any =
-                    if (binding.timePicker.minute < 10) "0${binding.timePicker.hour}" else "${binding.timePicker.hour}"
+                    if (binding.timePicker.hour < 10) "0${binding.timePicker.hour}" else "${binding.timePicker.hour}"
                 val minute: Any =
                     if (binding.timePicker.minute < 10) "0${binding.timePicker.minute}" else "${binding.timePicker.minute}"
                 alarm.time = "${hour}:${minute}"
@@ -168,6 +185,44 @@ class AlarmMainFrag : Fragment() {
                 alarm.time =
                     "${hour}:${minute}"
             }
+        }
+    }
+
+    fun registAlarm(alarm: Alarm) {
+
+        val time = alarm.time
+        val cal = Calendar.getInstance()
+        val date = Date()
+        cal.time = date
+        val arr = time?.split(":")
+        val hourOfDay = arr!!.get(0)
+        val minute = arr!!.get(1)
+        cal.set(Calendar.HOUR_OF_DAY, hourOfDay.toInt())
+        cal.set(Calendar.MINUTE, minute.toInt())
+
+
+        Log.d(TAG, "registAlarm: ${alarm.dayOfWeek as ArrayList<DayOfWeek>}")
+
+        alarmManager = activity?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmIntent = Intent(activity?.applicationContext, AlarmReceiver::class.java)
+        val bundle = Bundle()
+        bundle.putSerializable("myData",alarm)
+        alarmIntent.putExtra("bundle",bundle)
+        val pendingIntent :PendingIntent = PendingIntent.getBroadcast(activity?.applicationContext,400, alarmIntent, 0)
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager?.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                cal.timeInMillis,
+                pendingIntent
+            )
+        } else {
+            alarmManager?.setExact(
+                AlarmManager.RTC_WAKEUP,
+                cal.timeInMillis,
+                pendingIntent
+            )
         }
     }
 }

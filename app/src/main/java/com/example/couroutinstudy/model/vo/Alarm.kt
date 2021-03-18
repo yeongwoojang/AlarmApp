@@ -1,10 +1,15 @@
 package com.example.couroutinstudy.model.vo
 
+import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverter
 import java.io.Serializable
 
 @Entity
 class Alarm() :Serializable{
+    @PrimaryKey(autoGenerate = true)
+    var id : Int = 0
     var amPm: String? = null
     var time: String? = null
     var isRepeat: Boolean = false

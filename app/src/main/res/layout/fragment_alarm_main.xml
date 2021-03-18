@@ -70,7 +70,7 @@
                 android:id="@+id/set_time_layout"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="2"
+                android:layout_weight="1"
                 >
 
                 <TimePicker
@@ -84,7 +84,7 @@
                 android:id="@+id/layout_menu"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="2"
+                android:layout_weight="1"
                 android:background="@drawable/style_menu"
                 android:gravity="center"
                 android:orientation="vertical">
@@ -146,24 +146,11 @@
                         android:textOn="" />
                 </LinearLayout>
             </LinearLayout>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="2"
-                android:gravity="center">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/gray400"
-                    android:fontFamily="@font/nanum_square_ac_l"
-                    android:gravity="center"
-                    android:padding="10dp"
-                    android:text="알림 삭제"
-                    android:textColor="@color/red700"
-                    android:textSize="15sp" />
-            </LinearLayout>
+                android:layout_weight="1"
+                />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

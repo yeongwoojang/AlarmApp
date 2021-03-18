@@ -23,11 +23,12 @@ class BaseViewModel(application: Application) : AndroidViewModel(application) {
     val slideLd  = MutableLiveData<Boolean>()
     val fragIdLd = MutableLiveData<Int>()
     val timeLd = MutableLiveData<Map<String,Int>>()
-    val alarmLd  = MutableLiveData<Alarm?>()
+    val alarmLd  = MutableLiveData<Alarm>()
 
     var alarms : LiveData<List<Alarm>>
 
     init {//초기화 블록
+
         slideLd.value = false
         alarms = getAll()
     }
@@ -36,12 +37,22 @@ class BaseViewModel(application: Application) : AndroidViewModel(application) {
         return db.alarmDao().getAll()
     }
 
+    fun deleteAll(){
+        viewModelScope.launch(Dispatchers.IO ) {
+        db.alarmDao().deleteAll()
+        }
+    }
     fun insertAlarm(alarm : Alarm){
         viewModelScope.launch(Dispatchers.IO) {
             db.alarmDao().insert(alarm)
         }
     }
 
+    fun deleteAlarm(alarm : Alarm){
+        viewModelScope.launch(Dispatchers.IO) {
+            db.alarmDao().delete(alarm)
+        }
+    }
 
     fun openSlide() {// open slide
         slideLd.value = true
@@ -56,18 +67,14 @@ class BaseViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateTime(hourOfDay : Int, minute : Int){
-        Log.d("liveTime", "updateTime: ${hourOfDay}, ${minute}")
         val map = mutableMapOf<String,Int>()
         map.put("hourOfDay",hourOfDay)
         map.put("minute",minute)
-        Log.d("liveTime", "updateTime: ${map}")
         timeLd.value = map
     }
 
-    fun setAlarm(alarm : Alarm?){
-        if(alarm!=null){
-            alarmLd.value = alarm!!
-        }
+    fun setAlarm(alarm : Alarm){
+            alarmLd.value = alarm
 
     }
 

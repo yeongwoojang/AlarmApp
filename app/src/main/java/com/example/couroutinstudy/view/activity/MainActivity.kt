@@ -75,10 +75,6 @@ class MainActivity : AppCompatActivity() {
             val animator = it.itemAnimator //RecyclerView를 update했을 시 화면이 깜빡이는 현상을 제거하는 부분
             if (animator is SimpleItemAnimator) animator.supportsChangeAnimations = false
         }
-        items.add(Alarm("PM", "12:01",false))
-        items.add(Alarm("PM", "12:03", false))
-        items.add(Alarm("PM", "12:04", false))
-        adapter.updateItems(items)
 
         val screenHeight = resources.displayMetrics.heightPixels //디바이스의 height값
 
@@ -100,25 +96,23 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+
         viewModel.fragIdLd.observe(this, Observer { fragId ->
-            Log.d(TAG, "${fragId}")
             when (fragId) {
                 ALARM_MAIN_FRAGMENT -> {
                     initFragment(alarmMainFrag)
                 }
                 DAY_OF_WEEK_FRAGMENT -> {
-                    Log.d(TAG, "onCreate: ${fragId}")
                     initFragment(dayOfWeekFrag)
                 }
                 SOUNT_FRAGMENT -> {
                     TODO("사운드 프래그먼트가 올 곳")
                 }
             }
-
         })
-        
-        viewModel.alarmLd.observe(this, Observer { alarm->
-            Log.d(TAG, "AlarmInfo: ${alarm}")
+
+        viewModel.alarms.observe(this, Observer { alarmList->
+            adapter.updateItems(alarmList)
         })
 
     }
@@ -144,7 +138,7 @@ class MainActivity : AppCompatActivity() {
         fragmentTransaction.commit()
     }
     
-    public fun changeBundle(bundle : Bundle){
+     fun changeBundle(bundle : Bundle){
         this.bundle = bundle
     }
 

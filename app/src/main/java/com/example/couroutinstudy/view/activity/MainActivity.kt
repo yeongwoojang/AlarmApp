@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
             viewModel.openSlide()
         }
 
-
+        viewModel.deleteAll()
         viewModel.slideLd.observe(this, Observer { //슬라이드 여부를 관찰하면서 뷰를 올릴지 내릴지 결정
             if (it == false) {
                 binding.slidingview.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED

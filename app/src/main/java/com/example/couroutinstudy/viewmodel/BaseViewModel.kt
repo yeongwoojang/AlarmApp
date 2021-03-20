@@ -8,8 +8,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.room.Room
+import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.couroutinstudy.database.AppDatabase
 import com.example.couroutinstudy.model.vo.Alarm
+import com.example.couroutinstudy.util.work.AlarmWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -21,6 +25,8 @@ class BaseViewModel(application: Application) : AndroidViewModel(application) {
         AppDatabase::class.java,"AlarmDatabase"
     ).build()
 
+    private val workManageer : WorkManager =  WorkManager.getInstance(application.applicationContext)
+
     val slideLd  = MutableLiveData<Boolean>()
     val fragIdLd = MutableLiveData<Int>()
     val timeLd = MutableLiveData<Map<String,Int>>()
@@ -29,7 +35,6 @@ class BaseViewModel(application: Application) : AndroidViewModel(application) {
     var alarms : LiveData<List<Alarm>>
 
     init {//초기화 블록
-
         slideLd.value = false
         alarms = getAll()
     }
@@ -76,6 +81,10 @@ class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setAlarm(alarm : Alarm){
             alarmLd.value = alarm
+    }
 
+    fun startWorkManger(){
+        val work = OneTimeWorkRequest.Builder(AlarmWorker::class.java)
+            .build()
     }
 }

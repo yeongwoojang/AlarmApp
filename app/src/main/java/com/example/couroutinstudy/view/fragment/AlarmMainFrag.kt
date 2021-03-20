@@ -201,6 +201,7 @@ class AlarmMainFrag : Fragment() {
         cal.set(Calendar.MINUTE, minute.toInt())
 
 
+        Log.d(TAG, "registAlarm: ${activity.toString()}")
         Log.d(TAG, "registAlarm: ${alarm.dayOfWeek as ArrayList<DayOfWeek>}")
 
         alarmManager = activity?.getSystemService(Context.ALARM_SERVICE) as AlarmManager

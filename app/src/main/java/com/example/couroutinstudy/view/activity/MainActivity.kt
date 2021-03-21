@@ -1,8 +1,13 @@
 package com.example.couroutinstudy.view.activity
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.KeyguardManager
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -63,6 +68,8 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+
+        turnScreenOnAndKeyguardOff()
         fragmentManager = supportFragmentManager //프래그먼트매니저 초기회
 
         //context를 사용 가능한 시점에서 늦은 뷰모델 초기화 방법
@@ -142,5 +149,21 @@ class MainActivity : AppCompatActivity() {
         this.bundle = bundle
     }
 
+    //화면이 꺼져있을 때 액티비티가 실행될 때 화면을 깨우기 위한 것
+    fun Activity.turnScreenOnAndKeyguardOff(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+        } else {
+            window.addFlags(
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+            )
+        }
+        with(getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requestDismissKeyguard(this@turnScreenOnAndKeyguardOff, null)
+            }
+        }
+    }
 }
 

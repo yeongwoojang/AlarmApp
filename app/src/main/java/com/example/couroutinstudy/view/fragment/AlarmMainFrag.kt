@@ -206,6 +206,7 @@ class AlarmMainFrag : Fragment() {
 
         alarmManager = activity?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val alarmIntent = Intent(activity?.applicationContext, AlarmReceiver::class.java)
+        alarmIntent.action = "sendNotification"
         val bundle = Bundle()
         bundle.putSerializable("myData",alarm)
         alarmIntent.putExtra("bundle",bundle)

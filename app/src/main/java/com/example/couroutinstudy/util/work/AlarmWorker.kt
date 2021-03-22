@@ -11,19 +11,16 @@ class AlarmWorker(appContext : Context, workParams :WorkerParameters) :Worker(ap
     val player = MediaPlayer.create(applicationContext, R.raw.mom)
     override fun doWork(): Result {
 
-
-        player.isLooping = true
-        player.start()
-        for (i in 0..30){
-            Thread.sleep(1000)
-            Log.d("doWork", "doWork: ${i}")
+        player.isLooping = true // 벨소리 player 무한반복
+        player.start() // 벨소리 시작
+        for (i in 0..30){ // 알람을 30초 동안 실행시키기 위함.
+            Thread.sleep(1000) // 1초 휴식
         }
         return Result.success()
     }
 
-    override fun onStopped() {
+    override fun onStopped() { //work가 cancel 되었을 때 실행되는 메소드
         super.onStopped()
-        Log.d("AlarmWorker", "onStopped: ")
-        player.stop()
+        player.stop() // 알람을 멈춤
     }
 }

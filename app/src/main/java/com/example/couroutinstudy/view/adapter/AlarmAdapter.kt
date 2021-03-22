@@ -1,26 +1,31 @@
 package com.example.couroutinstudy.view.adapter
 
 import android.content.Context
-import android.content.res.Resources
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ToggleButton
-import androidx.annotation.DrawableRes
-import androidx.core.content.ContextCompat
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.couroutinstudy.R
 import com.example.couroutinstudy.databinding.ItemAlarmBinding
 import com.example.couroutinstudy.model.vo.Alarm
+import com.example.couroutinstudy.viewmodel.BaseViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
-class AlarmAdapter(private val mContext : Context) : RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder>() {
+class AlarmAdapter(private val mContext: Context, private val viewModel: BaseViewModel) :
+    RecyclerView.Adapter<AlarmAdapter.AlarmViewHolder>() {
 
     private val thisObj = this
     private var items: List<Alarm> = mutableListOf<Alarm>()
+    private var isWholeUpdate = false
+    private var updatePosition = 0
 
     inner class AlarmViewHolder(private val binding: ItemAlarmBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -39,20 +44,31 @@ class AlarmAdapter(private val mContext : Context) : RecyclerView.Adapter<AlarmA
     // RecyclerView 업데이트
     fun updateItems(items: List<Alarm>) {
         this.items = items
-        notifyDataSetChanged()
+        if(isWholeUpdate) notifyDataSetChanged()
+        else notifyItemChanged(updatePosition)
     }
 
-    fun activeALarm(position : Int){
-        items[position].isRepeat = !items[position].isRepeat
-        notifyItemChanged(position)
-        
+    fun activeAlarm(position: Int) {
+        isWholeUpdate = false
+        updatePosition = position
+        items[position].isOn = !items[position].isOn
+        viewModel.updateOnOff(items[position])
+
+
+
         //Vibrator(진동) 권한 사용
-        val vibrator : Vibrator = mContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)  vibrator.vibrate(VibrationEffect.createOneShot(50, 10))
+        val vibrator: Vibrator = mContext.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) vibrator.vibrate(
+            VibrationEffect.createOneShot(
+                50,
+                10
+            )
+        )
         else vibrator.vibrate(200) //토글버튼 클릭 시 진동 발생
 
 
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlarmViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ItemAlarmBinding.inflate(inflater, parent, false)
@@ -70,6 +86,7 @@ class AlarmAdapter(private val mContext : Context) : RecyclerView.Adapter<AlarmA
 }
 
 @BindingAdapter("isActive")
-fun setActive(toggleButtn : ToggleButton, alarm : Alarm){
-    toggleButtn.isChecked = alarm.isRepeat
+fun setActive(toggleButton: ToggleButton, alarm: Alarm) {
+    toggleButton.isChecked = alarm.isOn
+
 }

@@ -12,6 +12,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ToggleButton
+import androidx.databinding.BindingAdapter
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.couroutinstudy.databinding.FragmentAlarmMainBinding
@@ -60,20 +63,19 @@ class AlarmMainFrag : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(TAG, "alarmMain go ")
 //        viewModel = ViewModelProvider(activity as FragmentActivity)[BaseViewModel::class.java] 프래그먼트에서 뷰모델 생성 방법 1
 //        viewModel = ViewModelProvider(activity as ViewModelStoreOwner)[BaseViewModel::class.java] 프래그먼트에서 뷰모델 생성 방법 2
+        viewModel =  ViewModelProvider(requireActivity())[BaseViewModel::class.java] //프래그먼트에서 뷰모델 생성 방법 3
 
-        viewModel =
-            ViewModelProvider(requireActivity())[BaseViewModel::class.java] //프래그먼트에서 뷰모델 생성 방법 3
         //프래그먼트에서 위의 방식과 같이 뷰모델을 생성하면 액티비티에서 생성한 뷰모델을 공유한다.
         //requireActivity는 getActivity가 null일 경우 IllegalStatementException을 던진다.
-        alarm = Alarm()
+        this.alarm = Alarm()
+        binding.alarm = alarm
+        Log.d(TAG, "onViewCreated:")
         //취소버튼 클릭 이벤트
         binding.btnCancel.setOnClickListener {
-            alarm =
-                Alarm() // slidingView가 닫히고 다시 열릴 떄 onViewCreated를 타지 않게 했기 때문에 alarm객체를 다시 초기화한다.
-//            viewModel.setAlarm(alarm)
+            this.alarm = Alarm() // slidingView가 닫히고 다시 열릴 떄 onViewCreated를 타지 않게 했기 때문에 alarm객체를 다시 초기화한다.
+            viewModel.setAlarm(alarm)
             viewModel.updateTime(0, 0) // 알람객체의 hourOfDay와 minute를 0으로 초기화(Default = null)
             viewModel.closeSlide() //취소 버튼 클릭 시 슬라이드 닫음
         }
@@ -82,23 +84,14 @@ class AlarmMainFrag : Fragment() {
         binding.btnAlarmSave.setOnClickListener {
             //알림 저장 버튼 클릭 시 실행되어야 할 코드 작성
             checkAlarmData() //alarm null Check
-//            alarm?.let { alarm -> viewModel.setAlarm(alarm) }
             registAlarm(alarm)
             viewModel.insertAlarm(alarm)
-
-            alarm =
-                Alarm() // slidingView가 닫히고 다시 열릴 떄 onViewCreated를 타지 않게 했기 때문에 alarm객체를 다시 초기화한다.
-//            viewModel.setAlarm(alarm)
+            this.alarm = Alarm() // slidingView가 닫히고 다시 열릴 떄 onViewCreated를 타지 않게 했기 때문에 alarm객체를 다시 초기화한다.
+            viewModel.setAlarm(alarm)
             viewModel.updateTime(0, 0)
             viewModel.closeSlide()
         }
-
-
-
-
-        viewModel.alarms.observe(requireActivity(), Observer {
-
-        })
+        
         binding.menuRepeat.setOnClickListener {//반복 버튼 클릭 이벤트
             val bundle = Bundle()
             checkAlarmData() //alarm null Check
@@ -119,7 +112,9 @@ class AlarmMainFrag : Fragment() {
 
         binding.btnActiveRepeatAlarm.setOnClickListener {
             //다시알림 메뉴를 활성화 했을 때 실행되어야 할 코드 작성
+            Log.d(TAG, "setOnClickListener: ")
             alarm.isRepeat = !alarm.isRepeat
+            Log.d(TAG, "btnActiveRepeatAlarm:${alarm}")
             checkAlarmData() //alarm null Check
             viewModel.setAlarm(alarm)
 
@@ -144,14 +139,13 @@ class AlarmMainFrag : Fragment() {
                     binding.timePicker.currentHour = cal.get(Calendar.HOUR_OF_DAY)
                     binding.timePicker.currentMinute = cal.get(Calendar.MINUTE)
                 }
-
             }
-
         })
 
         viewModel.alarmLd.observe(requireActivity(), Observer { alarm ->
-            Log.d(TAG, "alarmObj observe: ")
             this.alarm = alarm
+            _binding?.alarm = alarm //프래그먼트의 생명주기가 끝나면 _binding을 null로 해주었기 때문에
+            // binding getter로 접근이 불가하기 때문에 변수로 직접 접근.
         })
     }
 
@@ -186,6 +180,14 @@ class AlarmMainFrag : Fragment() {
                     "${hour}:${minute}"
             }
         }
+        
+    }
+    override fun onResume() {
+        super.onResume()
+        Log.d("onResume", "onResume: ")
+    }
+    override fun onDestroy() {
+        super.onDestroy()
     }
 
     fun registAlarm(alarm: Alarm) {
@@ -199,10 +201,6 @@ class AlarmMainFrag : Fragment() {
         val minute = arr!!.get(1)
         cal.set(Calendar.HOUR_OF_DAY, hourOfDay.toInt())
         cal.set(Calendar.MINUTE, minute.toInt())
-
-
-        Log.d(TAG, "registAlarm: ${activity.toString()}")
-        Log.d(TAG, "registAlarm: ${alarm.dayOfWeek as ArrayList<DayOfWeek>}")
 
         alarmManager = activity?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val alarmIntent = Intent(activity?.applicationContext, AlarmReceiver::class.java)
@@ -227,4 +225,8 @@ class AlarmMainFrag : Fragment() {
             )
         }
     }
+}
+@BindingAdapter("isRepeat")
+fun setRepeat(toggleButton : ToggleButton, alarm : Alarm){
+    toggleButton.isChecked = alarm.isRepeat
 }

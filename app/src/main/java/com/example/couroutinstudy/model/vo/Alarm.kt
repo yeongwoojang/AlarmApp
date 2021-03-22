@@ -1,9 +1,7 @@
 package com.example.couroutinstudy.model.vo
 
-import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
 import java.io.Serializable
 
 @Entity
@@ -12,6 +10,7 @@ class Alarm() :Serializable{
     var id : Int = 0
     var amPm: String? = null
     var time: String? = null
+    var isOn : Boolean  = false
     var isRepeat: Boolean = false
     var dayOfWeek : List<DayOfWeek> = mutableListOf(
         DayOfWeek("월요일마다", false),
@@ -22,14 +21,15 @@ class Alarm() :Serializable{
         DayOfWeek("토요일마다", false),
         DayOfWeek("일요일마다", false)
     )
-    constructor(amPm : String,time : String, isReapeat : Boolean) : this(){
+    constructor(amPm : String,time : String, onOff : Boolean, isRepeat : Boolean) : this(){
         this.amPm = amPm
         this.time = time
+        this.isOn = onOff
         this.isRepeat = isRepeat
     }
 
     override fun toString(): String {
-        return "Alarm(amPm=$amPm, time=$time, isRepeat=$isRepeat, dayOfWeek=$dayOfWeek)"
+        return "Alarm(id=$id, amPm=$amPm, time=$time, isOn=$isOn, isRepeat=$isRepeat, dayOfWeek=$dayOfWeek)"
     }
 
 

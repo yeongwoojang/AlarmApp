@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemAnimator
 import androidx.recyclerview.widget.SimpleItemAnimator
+import androidx.work.WorkManager
 import com.example.couroutinstudy.R
 import com.example.couroutinstudy.databinding.ActivityMainBinding
 import com.example.couroutinstudy.model.vo.Alarm
@@ -74,7 +75,7 @@ class MainActivity : AppCompatActivity() {
 
         //context를 사용 가능한 시점에서 늦은 뷰모델 초기화 방법
 //        viewModel = ViewModelProvider(this)[BaseViewModel::class.java]
-        val adapter = AlarmAdapter(this)
+        val adapter = AlarmAdapter(this,viewModel)
         binding.alarmRv.let {
             it.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
             it.adapter = adapter
@@ -87,6 +88,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.slidingview.let {
             it.isTouchEnabled = false
+            it.isTouchEnabled = false
         }
 
         binding.btnAddAlarm.setOnClickListener { // + 버튼 클릭 이벤트
@@ -94,7 +96,8 @@ class MainActivity : AppCompatActivity() {
             viewModel.openSlide()
         }
 
-        viewModel.deleteAll()
+//        viewModel.deleteAll()
+        
         viewModel.slideLd.observe(this, Observer { //슬라이드 여부를 관찰하면서 뷰를 올릴지 내릴지 결정
             if (it == false) {
                 binding.slidingview.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
@@ -120,6 +123,8 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.alarms.observe(this, Observer { alarmList->
             adapter.updateItems(alarmList)
+
+            Log.d(TAG, "onCreate: ${alarmList.size}")
         })
 
     }
@@ -164,6 +169,11 @@ class MainActivity : AppCompatActivity() {
                 requestDismissKeyguard(this@turnScreenOnAndKeyguardOff, null)
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
     }
 }
 

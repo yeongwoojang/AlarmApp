@@ -3,6 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="alarm"
+            type="com.example.couroutinstudy.model.vo.Alarm" />
+    </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/alarm_main_fragment"
         android:layout_width="match_parent"
@@ -142,6 +147,7 @@
                         android:layout_gravity="end"
                         android:layout_weight="1"
                         android:background="@drawable/custom_toggle"
+                        app:isRepeat="@{alarm}"
                         android:textOff=""
                         android:textOn="" />
                 </LinearLayout>

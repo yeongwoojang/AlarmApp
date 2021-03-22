@@ -54,7 +54,7 @@
             android:textOff=""
             android:layout_gravity="end"
             android:layout_weight="0.5"
-            android:onClick="@{()->adapter.activeALarm(position)}"
+            android:onClick="@{()->adapter.activeAlarm(position)}"
             app:isActive="@{alarm}"
             />
         </LinearLayout>

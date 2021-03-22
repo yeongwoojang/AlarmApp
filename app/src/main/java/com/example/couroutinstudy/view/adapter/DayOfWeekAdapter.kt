@@ -13,7 +13,7 @@ import com.example.couroutinstudy.model.vo.DayOfWeek
 import com.example.couroutinstudy.viewmodel.BaseViewModel
 
 
-class DayOfWeekAdapter(val viewModel : BaseViewModel,val alarm : Alarm) : RecyclerView.Adapter<DayOfWeekAdapter.DayOfWeekViewHolder>() {
+class DayOfWeekAdapter(private val viewModel : BaseViewModel, val alarm : Alarm) : RecyclerView.Adapter<DayOfWeekAdapter.DayOfWeekViewHolder>() {
     private var thisObj = this
     private var items : List<DayOfWeek> = mutableListOf()
 

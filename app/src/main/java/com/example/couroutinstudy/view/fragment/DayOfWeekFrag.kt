@@ -50,6 +50,7 @@ class DayOfWeekFrag : Fragment() {
         val adapter = DayOfWeekAdapter(viewModel,alarm)
 
 
+        Log.d("DAYOF", "onViewCreated: ${alarm}")
         binding.dayOfweekRv.let{ //recyclerView 설정
             it.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
             it.adapter = adapter
@@ -62,5 +63,13 @@ class DayOfWeekFrag : Fragment() {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        Log.d("onResume", "onResume: ")
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null // 프래그먼트의 생명주기가 끝날 때 binding도 같이 삭제
+    }
 }

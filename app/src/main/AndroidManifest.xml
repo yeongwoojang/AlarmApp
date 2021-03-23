@@ -12,7 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".view.activity.TestActivity"/>
+        <activity android:name=".view.activity.AlarmActivity"/>
         <activity android:name=".view.activity.MainActivity"
             android:showOnLockScreen="true">
             <intent-filter>

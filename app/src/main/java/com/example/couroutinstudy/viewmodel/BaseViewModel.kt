@@ -91,7 +91,6 @@ class BaseViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun setAlarm(alarm: Alarm) {
-        Log.d("imhung", "setAlarm:${alarm} ")
         alarmLd.value = alarm
     }
 }

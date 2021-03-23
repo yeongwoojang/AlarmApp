@@ -70,7 +70,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
 
 
-        turnScreenOnAndKeyguardOff()
         fragmentManager = supportFragmentManager //프래그먼트매니저 초기회
 
         //context를 사용 가능한 시점에서 늦은 뷰모델 초기화 방법
@@ -96,8 +95,6 @@ class MainActivity : AppCompatActivity() {
             viewModel.openSlide()
         }
 
-//        viewModel.deleteAll()
-        
         viewModel.slideLd.observe(this, Observer { //슬라이드 여부를 관찰하면서 뷰를 올릴지 내릴지 결정
             if (it == false) {
                 binding.slidingview.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
@@ -123,8 +120,6 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.alarms.observe(this, Observer { alarmList->
             adapter.updateItems(alarmList)
-
-            Log.d(TAG, "onCreate: ${alarmList.size}")
         })
 
     }
@@ -154,22 +149,7 @@ class MainActivity : AppCompatActivity() {
         this.bundle = bundle
     }
 
-    //화면이 꺼져있을 때 액티비티가 실행될 때 화면을 깨우기 위한 것
-    fun Activity.turnScreenOnAndKeyguardOff(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true)
-            setTurnScreenOn(true)
-        } else {
-            window.addFlags(
-                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-            )
-        }
-        with(getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                requestDismissKeyguard(this@turnScreenOnAndKeyguardOff, null)
-            }
-        }
-    }
+
 
     override fun onDestroy() {
         super.onDestroy()

@@ -2,8 +2,11 @@ package com.example.couroutinstudy.view.activity
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlarmManager
 import android.app.KeyguardManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -23,6 +26,7 @@ import com.example.couroutinstudy.R
 import com.example.couroutinstudy.databinding.ActivityMainBinding
 import com.example.couroutinstudy.model.vo.Alarm
 import com.example.couroutinstudy.model.vo.DayOfWeek
+import com.example.couroutinstudy.util.receiver.AlarmReceiver
 import com.example.couroutinstudy.view.adapter.AlarmAdapter
 import com.example.couroutinstudy.view.fragment.AlarmMainFrag
 import com.example.couroutinstudy.view.fragment.DayOfWeekFrag
@@ -119,7 +123,23 @@ class MainActivity : AppCompatActivity() {
         })
 
         viewModel.alarms.observe(this, Observer { alarmList->
+            Log.d(TAG, "onCreate: ${alarmList}")
             adapter.updateItems(alarmList)
+        })
+
+
+
+        viewModel.codeLd.observe(this, Observer { code->
+            Log.d(TAG, "리퀘스트 아이디3:${code} ")
+            val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(this, AlarmReceiver::class.java)
+            intent.action ="sendNotification"
+            val sender = PendingIntent.getBroadcast(this,code,intent,
+                PendingIntent.FLAG_UPDATE_CURRENT)
+            if(sender!=null){
+                alarmManager.cancel(sender)
+                sender.cancel()
+            }
         })
 
     }
@@ -148,8 +168,6 @@ class MainActivity : AppCompatActivity() {
      fun changeBundle(bundle : Bundle){
         this.bundle = bundle
     }
-
-
 
     override fun onDestroy() {
         super.onDestroy()

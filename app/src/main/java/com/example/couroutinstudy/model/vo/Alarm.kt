@@ -12,6 +12,7 @@ class Alarm() :Serializable{
     var time: String? = null
     var isOn : Boolean  = false
     var isRepeat: Boolean = false
+    var requestCode : Int = -1
     var dayOfWeek : List<DayOfWeek> = mutableListOf(
         DayOfWeek("월요일마다", false),
         DayOfWeek("화요일마다", false),

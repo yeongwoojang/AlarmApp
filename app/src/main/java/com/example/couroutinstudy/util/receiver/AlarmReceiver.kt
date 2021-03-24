@@ -19,8 +19,6 @@ import com.example.couroutinstudy.R
 import com.example.couroutinstudy.model.vo.Alarm
 import com.example.couroutinstudy.util.work.AlarmWorker
 import com.example.couroutinstudy.view.activity.MainActivity
-import kotlinx.coroutines.CoroutineScope
-import java.text.SimpleDateFormat
 import java.util.*
 
 class AlarmReceiver : BroadcastReceiver() {
@@ -42,28 +40,41 @@ class AlarmReceiver : BroadcastReceiver() {
                     val alarm: Alarm = bundle.getSerializable("alarmData") as Alarm //등록한 알람 정보
                     val alarmDate = bundle.getSerializable("alarmDate") as Calendar // 알람이 울리는 시간(Calendar 객체)
                     val currentDate = Calendar.getInstance() //현재시간 정보를 담고있는 "Calendar"객체
-//                    val date = Date()
-//                    currentDate.time = date
-                    val compare = (currentDate.timeInMillis- alarmDate.timeInMillis)/60000
-                    Log.d(TAG, "onReceive Today: ${currentDate.time}")
-                    Log.d(TAG, "onReceive Alarm: ${alarmDate.time}")
-                    Log.d(TAG, "onReceive 차이: ${compare}")
-                    currentDate.get(Calendar.HOUR_OF_DAY)
-                    currentDate.get(Calendar.MINUTE)
-                    Log.d(TAG, "onReceive: ${(alarmDate.timeInMillis)*24*60*60*1000} 분")
+                    var dayOfWeek : String? = ""
 
-                    Log.d(TAG, "onReceive: ${currentDate.get(Calendar.DATE)}")
-                    Log.d(TAG, "onReceive: ${alarmDate.get(Calendar.MINUTE)}")
+                    Log.d(TAG, "알람코드 : ${alarm.requestCode}")
+                    //등록된 알람이 onReceive를 탔을 때 몇요일 알람이 넘어온지 확인
+                    when(alarmDate.get(Calendar.DAY_OF_WEEK)){
+                        1 -> dayOfWeek = "일"
+                        2 -> dayOfWeek = "월"
+                        3 -> dayOfWeek = "화"
+                        4 -> dayOfWeek = "수"
+                        5 -> dayOfWeek = "목"
+                        6 -> dayOfWeek = "금"
+                        7 -> dayOfWeek = "토"
+                    }
+                    Log.d(TAG, "onReceive: ${dayOfWeek}요일")
 
-                    if((currentDate.get(Calendar.MINUTE)) - (alarmDate.get(Calendar.MINUTE))==0
-                        && currentDate.get(Calendar.DATE) >= alarmDate.get(Calendar.DATE)){
+                    val timeDeffence = currentDate.timeInMillis - alarmDate.timeInMillis
+                    val sec = timeDeffence/1000
+                    val min = timeDeffence /(60*1000)
+                    val hour = timeDeffence/ (60*60*1000)
+                    val day = timeDeffence/(24 * 60 * 60 * 1000)
+                    val defDay = day.toInt()
+                    val defMin = (min-hour*60).toInt()
+                    val defHour = (hour - day*24).toInt()
+                    //넘어온 알람의 시간과 현재시간의 차이를 알아보기 위한 로그
+                    Log.d(TAG, "onReceive 일 차이: ${defDay}일")
+                    Log.d(TAG, "onReceive 일 차이: ${defHour}시간")
+                    Log.d(TAG, "onReceive 분 차이: ${defMin}분")
+                    if(defMin==0 && defDay==0 && defHour==0){
                         alarmTime = alarm.time
                         sendNotification(context.applicationContext) //알람 노티피케이션을 띄운다.
                     }else{
                         //요일 반복알람을 등록했을 때 이미 지난 날짜일 경우 울리지 않게함
                         //ex) 일요일 반복 알람을 등록했을 때 현재 월요일인 경우 앞 날짜의 일요일이 예약되는 것이 아니라
                         // 전날 일요일이 예약이 되어버린다. 따라서 이 경우는 다음 주 일요일 알람만 재지정해두고 "Notification"을 띄우지 않는다.
-                        Log.d(TAG, "onReceive: 이미 지난시간이라 알람 안울림")
+                        Log.d(TAG, "onReceive: 알람 시간과 현재시간이 맞지않아 알람이 울리지 않음")
                     }
 
                     //Bundle로 넘어온 Alarm 객체에 몇요일 마다 알람이 울리게 설정 되어있는지 체크
@@ -82,7 +93,7 @@ class AlarmReceiver : BroadcastReceiver() {
                         } //체크된 요일이 없다면 그냥 넘어간다.
 
                 }
-            } else {
+            } else if(intent.action.equals("removeNotification")){
                 alarmCancel(context) //알림 중지
             }
         }
@@ -93,6 +104,7 @@ class AlarmReceiver : BroadcastReceiver() {
 //            val player = MediaPlayer.create(context, R.raw.mom)
 //            player.isLooping = true
             val clickIntent = Intent(context, AlarmReceiver::class.java)
+            clickIntent.action = "removeNotification"
             val clickPendingIntent = PendingIntent.getBroadcast(context, 0, clickIntent, 0)
             val notificationLayout =
                 RemoteViews(context.packageName, R.layout.notification_custom)
@@ -101,7 +113,6 @@ class AlarmReceiver : BroadcastReceiver() {
             var builder: NotificationCompat.Builder? = null
 
             val intent = Intent(context, MainActivity::class.java)
-
             val pendingIntent =
                 PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

@@ -10,9 +10,12 @@ import androidx.room.Room
 import androidx.work.WorkManager
 import com.example.couroutinstudy.database.AppDatabase
 import com.example.couroutinstudy.model.vo.Alarm
+import com.example.couroutinstudy.model.vo.AlarmRequest
+import com.example.couroutinstudy.view.fragment.AlarmMainFrag
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -25,12 +28,14 @@ class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
     private val workManageer: WorkManager = WorkManager.getInstance(application.applicationContext)
 
-    val slideLd = MutableLiveData<Boolean>()
+    val slideLd = MutableLiveData<Boolean?>()
     val fragIdLd = MutableLiveData<Int>()
     val timeLd = MutableLiveData<Map<String, Int>>()
     val alarmLd = MutableLiveData<Alarm>()
-
+    val lastAlarmIdLd: MutableLiveData<Int>? = MutableLiveData<Int>()
     var alarms: LiveData<List<Alarm>>
+    val requestCodeLd = MutableLiveData<List<String>>()
+    val codeLd = MutableLiveData<Int>()
 
     init {//초기화 블록
         slideLd.value = false
@@ -51,17 +56,38 @@ class BaseViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             db.alarmDao().insert(alarm)
         }
+        Log.d(AlarmMainFrag.TAG, "onViewCreated: selectLastAlarmId()실행")
+//        selectLastAlarmId()
     }
 
-    fun updateIsRepeat(alarm : Alarm){
+    fun updateIsRepeat(alarm: Alarm) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.alarmDao().updateIsRepeat(alarm.isRepeat,alarm.id)
+            db.alarmDao().updateIsRepeat(alarm.isRepeat, alarm.id)
         }
     }
 
-    fun updateOnOff(alarm : Alarm){
-        viewModelScope.launch(Dispatchers.IO){
-            db.alarmDao().updateOnOff(alarm.isOn,alarm.id)
+    fun selectLastAlarmId() {
+        viewModelScope.launch(Dispatchers.IO) {
+            Log.d("Adsf", "selectLastAlarmId실행")
+            val lastAlarmId: Int? = db.alarmDao().selectLastAlarmId()
+            if (lastAlarmId != null) {
+                lastAlarmIdLd?.postValue(lastAlarmId)
+            } else {
+                lastAlarmIdLd?.postValue(1)
+            }
+        }
+    }
+
+    fun updateOnOff(alarm: Alarm) {
+        viewModelScope.launch(Dispatchers.IO) {
+            db.alarmDao().updateOnOff(alarm.isOn, alarm.id)
+        }
+    }
+
+    fun selectRequestCode2(requestCode: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val code = db.alarmDao().selectRequestCode2(requestCode)
+            codeLd.postValue(code)
         }
     }
 

@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -17,6 +18,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.couroutinstudy.databinding.FragmentAlarmMainBinding
 import com.example.couroutinstudy.model.vo.Alarm
+import com.example.couroutinstudy.model.vo.AlarmRequest
 import com.example.couroutinstudy.util.receiver.AlarmReceiver
 import com.example.couroutinstudy.view.activity.MainActivity
 import com.example.couroutinstudy.viewmodel.BaseViewModel
@@ -62,7 +64,8 @@ class AlarmMainFrag : Fragment() {
         //프래그먼트에서 위의 방식과 같이 뷰모델을 생성하면 액티비티에서 생성한 뷰모델을 공유한다.
         //requireActivity는 getActivity가 null일 경우 IllegalStatementException을 던진다.
         this.alarm = Alarm()
-        binding.alarm = alarm
+        binding.alarm = alarm //alarm 데이터 바인딩
+        
         //취소버튼 클릭 이벤트
         binding.btnCancel.setOnClickListener {
             this.alarm =
@@ -75,8 +78,10 @@ class AlarmMainFrag : Fragment() {
         //알람 저장 버튼 클릭 이벤트
         binding.btnAlarmSave.setOnClickListener {
             //알림 저장 버튼 클릭 시 실행되어야 할 코드 작성
+            val pId = (Math.random()*100000000).toInt()
             checkAlarmData() //alarm null Check
             alarm.isOn = true
+            alarm.requestCode = pId
             registerAlarm(alarm)
             viewModel.insertAlarm(alarm)
             this.alarm =
@@ -95,6 +100,7 @@ class AlarmMainFrag : Fragment() {
         }
 
         binding.timePicker.setOnTimeChangedListener { view, hourOfDay, minute ->
+            Log.d(TAG, "onViewCreated: 타임피커 읽음")
             val amPm = if (hourOfDay < 12) "오전" else "오후" //선택한 시간이 오전인지 오후인지 식별
             val hour: Any = if (hourOfDay < 10) "0${hourOfDay}" else "${hourOfDay}"
             val min: Any = if (minute < 10) "0${minute}" else "${minute}"
@@ -139,6 +145,11 @@ class AlarmMainFrag : Fragment() {
             _binding?.alarm = alarm //프래그먼트의 생명주기가 끝나면 _binding을 null로 해주었기 때문에
             // binding getter로 접근이 불가하기 때문에 변수로 직접 접근.
         })
+
+        viewModel.lastAlarmIdLd?.observe(requireActivity(), Observer { id->
+
+
+        })
     }
 
     override fun onDestroyView() {
@@ -151,7 +162,6 @@ class AlarmMainFrag : Fragment() {
     //amPm과 time필드가 null이기 때문에 이 두 필드의
     //null체크를함과 동시에 초기화 해주는 메소드
     private fun checkAlarmData() {
-        if (alarm.amPm == null && alarm.time == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 alarm.amPm = if (binding.timePicker.hour < 12) "오전" else "오후"
                 val hour: Any =
@@ -168,15 +178,6 @@ class AlarmMainFrag : Fragment() {
                 alarm.time =
                     "${hour}:${minute}"
             }
-        }
-
-    }
-
-    override fun onResume() {
-        super.onResume()
-    }
-    override fun onDestroy() {
-        super.onDestroy()
     }
 
     private fun registerAlarm(alarm: Alarm) {
@@ -185,6 +186,7 @@ class AlarmMainFrag : Fragment() {
 
         val arr = time?.split(":")
         val hourOfDay = arr!!.get(0) //알람이 울릴 "시간"
+
         val minute = arr!!.get(1) //알람이 울릴 "분"
 
 //        val date = Date() //현재 시간정보를 담고있는 Date 객체
@@ -194,18 +196,16 @@ class AlarmMainFrag : Fragment() {
         alarmIntent.action = "sendNotification"
 
         var dayOfWeekCnt = 0
-
-
         Log.d("뭐야진짜", "${alarm.dayOfWeek}")
         for (i in 0..6) { //인덱스 0~6까지 조사
             //체크된 요일마다 알람을 예약하기 위한 조건문
             if (alarm.dayOfWeek[i].isCheck) { //체크된 요일이 있다면
+                Log.d(TAG, "registerAlarm: 반복알람등록")
                 dayOfWeekCnt++ //체크된 요일이 몇개인지 조사
                 cal.set(Calendar.DAY_OF_WEEK, i + 2) // Calendar 객체에 Alarm 객체에 체크된 요일을 Setting
                 // Calendar 객체에 알람이 울릴 시간과 분을 지정
                 cal.set(Calendar.HOUR_OF_DAY, hourOfDay.toInt())
                 cal.set(Calendar.MINUTE, minute.toInt())
-                Log.d(TAG, "시발: ${cal.time}")
                 setPendingIntent(alarmManager,alarmIntent,cal) //PendingIntent 설정
             }
         }
@@ -220,18 +220,21 @@ class AlarmMainFrag : Fragment() {
 
     //intent에 담을 값과 penndingIntent 세팅
     private fun setPendingIntent(alarmManager: AlarmManager?,alarmIntent : Intent, cal :Calendar){
-        val pId = (Math.random()*100000000).toLong()
+//        val pId = (Math.random()*100000000).toInt()
         val bundle = Bundle()
         bundle.putSerializable("alarmData", alarm)
         bundle.putSerializable("alarmDate", cal)
         alarmIntent.putExtra("bundle", bundle)
-
+//        alarm.requestCode = pId
+//        viewModel.insertRequestCode(AlarmRequest(alarm.id.toString()+pId))
+        Log.d(TAG, "리퀘스트 아이디1: ${alarm.requestCode}")
         val pendingIntent: PendingIntent = PendingIntent.getBroadcast(
             activity?.applicationContext
-            , pId.toInt()
+            , alarm.requestCode
             , alarmIntent
             , PendingIntent.FLAG_CANCEL_CURRENT
         )
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager?.setExactAndAllowWhileIdle(

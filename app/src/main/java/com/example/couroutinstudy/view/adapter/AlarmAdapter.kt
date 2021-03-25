@@ -14,12 +14,7 @@ import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.couroutinstudy.databinding.ItemAlarmBinding
 import com.example.couroutinstudy.model.vo.Alarm
-import com.example.couroutinstudy.util.receiver.AlarmReceiver
 import com.example.couroutinstudy.viewmodel.BaseViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class AlarmAdapter(private val mContext: Context, private val viewModel: BaseViewModel) :
@@ -57,10 +52,6 @@ class AlarmAdapter(private val mContext: Context, private val viewModel: BaseVie
         updatePosition = position //업데이트 된 포지션값 저장
         items[position].isOn = !items[position].isOn //리사이클러뷰 해당 포지션번째 아이탬의 isOn 속성을 on Off 하는 부분
         viewModel.updateOnOff(items[position]) //클릭한 아이템의 "isOn"변수를 변경하면 "Database"에서도 변경 적용
-        Log.d("Asdsad", "리퀘스트 아이디2: ${items[position].requestCode}")
-        if(!items[position].isOn){
-            viewModel.selectRequestCode2(items[position].requestCode)
-        }
 
 
         //Vibrator(진동) 권한 사용

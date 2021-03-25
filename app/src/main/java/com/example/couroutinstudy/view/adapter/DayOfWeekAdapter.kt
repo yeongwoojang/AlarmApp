@@ -13,9 +13,10 @@ import com.example.couroutinstudy.model.vo.DayOfWeek
 import com.example.couroutinstudy.viewmodel.BaseViewModel
 
 
-class DayOfWeekAdapter(private val viewModel : BaseViewModel, val alarm : Alarm) : RecyclerView.Adapter<DayOfWeekAdapter.DayOfWeekViewHolder>() {
+class DayOfWeekAdapter(private val viewModel: BaseViewModel, val alarm: Alarm) :
+    RecyclerView.Adapter<DayOfWeekAdapter.DayOfWeekViewHolder>() {
     private var thisObj = this
-    private var items : List<DayOfWeek> = mutableListOf()
+    private var items: List<DayOfWeek> = mutableListOf()
 
     inner class DayOfWeekViewHolder(private val binding: ItemDayOfWeekBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -30,7 +31,7 @@ class DayOfWeekAdapter(private val viewModel : BaseViewModel, val alarm : Alarm)
         }
     }
 
-    fun updateItem(items : List<DayOfWeek>){
+    fun updateItem(items: List<DayOfWeek>) {
         this.items = items
         notifyDataSetChanged()
     }
@@ -50,11 +51,17 @@ class DayOfWeekAdapter(private val viewModel : BaseViewModel, val alarm : Alarm)
         holder.bind(dayOfWeek, position)
     }
 
+    //요일을 체크 했을 때 실행되는 메소드
     fun itemClick(position: Int) {
-        items[position].isCheck = !items[position].isCheck
-        alarm.dayOfWeek[position].isCheck = items[position].isCheck
-        viewModel.setAlarm(alarm)
-        notifyItemChanged(position)
+        items[position].isCheck = !items[position].isCheck // DayOfWeek객체의 "isCheck" 를 변경
+        alarm.dayOfWeek[position].isCheck = items[position].isCheck // 넘어온 알람객체에 변경사항 할당
+
+        if (alarm.dayOfWeek[position].isCheck) { // 변경된 알람객체의 "isCheck" 값이 true일 경우
+            val pId = (Math.random() * 100000000).toInt() //요일을 클릭하면 랜덤으로 requestCode를 생성
+            alarm.dayOfWeek[position].requestCode = pId //해당 알람객체의 requestCode 값을 지정해준다.
+        }
+        viewModel.setAlarm(alarm) //프래그먼트간 공유할 alarm 객체를 업데이트
+        notifyItemChanged(position) //리사이클러뷰에 변경사항 적용
     }
 }
 

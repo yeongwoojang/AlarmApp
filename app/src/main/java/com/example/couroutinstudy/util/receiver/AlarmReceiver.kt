@@ -41,8 +41,7 @@ class AlarmReceiver : BroadcastReceiver() {
                     val alarmDate = bundle.getSerializable("alarmDate") as Calendar // 알람이 울리는 시간(Calendar 객체)
                     val currentDate = Calendar.getInstance() //현재시간 정보를 담고있는 "Calendar"객체
                     var dayOfWeek : String? = ""
-
-                    Log.d(TAG, "알람코드 : ${alarm.requestCode}")
+                    Log.d(TAG, "lastAlarmIdLd: ${alarm.id}")
                     //등록된 알람이 onReceive를 탔을 때 몇요일 알람이 넘어온지 확인
                     when(alarmDate.get(Calendar.DAY_OF_WEEK)){
                         1 -> dayOfWeek = "일"

@@ -73,7 +73,6 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-
         fragmentManager = supportFragmentManager //프래그먼트매니저 초기회
 
         //context를 사용 가능한 시점에서 늦은 뷰모델 초기화 방법
@@ -100,6 +99,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.slideLd.observe(this, Observer { //슬라이드 여부를 관찰하면서 뷰를 올릴지 내릴지 결정
+            Log.d(TAG, "slideLd: ${it}")
             if (it == false) {
                 binding.slidingview.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
             } else {
@@ -109,6 +109,7 @@ class MainActivity : AppCompatActivity() {
 
 
         viewModel.fragIdLd.observe(this, Observer { fragId ->
+            Log.d(TAG, "fragIdLd: ${fragId}")
             when (fragId) {
                 ALARM_MAIN_FRAGMENT -> {
                     initFragment(alarmMainFrag)
@@ -123,23 +124,8 @@ class MainActivity : AppCompatActivity() {
         })
 
         viewModel.alarms.observe(this, Observer { alarmList->
-            Log.d(TAG, "onCreate: ${alarmList}")
+            Log.d(AlarmMainFrag.TAG, "sequence : insert완료")
             adapter.updateItems(alarmList)
-        })
-
-
-
-        viewModel.codeLd.observe(this, Observer { code->
-            Log.d(TAG, "리퀘스트 아이디3:${code} ")
-            val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val intent = Intent(this, AlarmReceiver::class.java)
-            intent.action ="sendNotification"
-            val sender = PendingIntent.getBroadcast(this,code,intent,
-                PendingIntent.FLAG_UPDATE_CURRENT)
-            if(sender!=null){
-                alarmManager.cancel(sender)
-                sender.cancel()
-            }
         })
 
     }
@@ -147,7 +133,9 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
         if (supportFragmentManager.backStackEntryCount == 1) {
             binding.slidingview.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
+            Log.d(TAG, "onBackPressed: cnt=1")
         } else {
+            Log.d(TAG, "onBackPressed: cnt=0")
             super.onBackPressed()
         }
     }
@@ -160,11 +148,11 @@ class MainActivity : AppCompatActivity() {
             R.anim.enter_from_right,
             R.anim.exit_to_right
         )
-        fragmentTransaction.addToBackStack(null)
+//        fragmentTransaction.addToBackStack(null)
         fragmentTransaction.replace(R.id.dragview, fragment)
         fragmentTransaction.commit()
     }
-    
+
      fun changeBundle(bundle : Bundle){
         this.bundle = bundle
     }

@@ -12,12 +12,11 @@ import com.example.couroutinstudy.database.AppDatabase
 import com.example.couroutinstudy.model.vo.Alarm
 import com.example.couroutinstudy.model.vo.AlarmRequest
 import com.example.couroutinstudy.view.fragment.AlarmMainFrag
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers.Main
 
-class BaseViewModel(application: Application) : AndroidViewModel(application) {
+open class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
 
     private val db = Room.databaseBuilder(
@@ -34,11 +33,11 @@ class BaseViewModel(application: Application) : AndroidViewModel(application) {
     val alarmLd = MutableLiveData<Alarm>()
     val lastAlarmIdLd: MutableLiveData<Int>? = MutableLiveData<Int>()
     var alarms: LiveData<List<Alarm>>
-    val requestCodeLd = MutableLiveData<List<String>>()
-    val codeLd = MutableLiveData<Int>()
+    val testLd = MutableLiveData<Long>()
 
     init {//초기화 블록
-        slideLd.value = false
+//        slideLd.value = false
+        Log.d("BaseViewModel", "ViewModel InIt: ")
         alarms = getAll()
     }
 
@@ -53,23 +52,21 @@ class BaseViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun insertAlarm(alarm: Alarm) {
-        viewModelScope.launch(Dispatchers.IO) {
-            db.alarmDao().insert(alarm)
+        runBlocking {
+            var job =  viewModelScope.launch(IO){
+                val t = db.alarmDao().insert(alarm)
+                testLd.postValue(t)
+            }
+            Log.d("sequence", "insertAlarm()실행 ")
+            job.join()
         }
-        Log.d(AlarmMainFrag.TAG, "onViewCreated: selectLastAlarmId()실행")
-//        selectLastAlarmId()
+        Log.d("sequence", "selectLastAlarmId()실행 ")
+        selectLastAlarmId()
     }
-
-    fun updateIsRepeat(alarm: Alarm) {
-        viewModelScope.launch(Dispatchers.IO) {
-            db.alarmDao().updateIsRepeat(alarm.isRepeat, alarm.id)
-        }
-    }
-
     fun selectLastAlarmId() {
         viewModelScope.launch(Dispatchers.IO) {
-            Log.d("Adsf", "selectLastAlarmId실행")
             val lastAlarmId: Int? = db.alarmDao().selectLastAlarmId()
+            Log.d("머야", "selectLastAlarmId: ${lastAlarmId}")
             if (lastAlarmId != null) {
                 lastAlarmIdLd?.postValue(lastAlarmId)
             } else {
@@ -78,18 +75,21 @@ class BaseViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
+    fun updateIsRepeat(alarm: Alarm) {
+        viewModelScope.launch(Dispatchers.IO) {
+            db.alarmDao().updateIsRepeat(alarm.isRepeat, alarm.id)
+        }
+    }
+
+
+
     fun updateOnOff(alarm: Alarm) {
         viewModelScope.launch(Dispatchers.IO) {
             db.alarmDao().updateOnOff(alarm.isOn, alarm.id)
         }
     }
 
-    fun selectRequestCode2(requestCode: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val code = db.alarmDao().selectRequestCode2(requestCode)
-            codeLd.postValue(code)
-        }
-    }
 
     fun deleteAlarm(alarm: Alarm) {
         viewModelScope.launch(Dispatchers.IO) {

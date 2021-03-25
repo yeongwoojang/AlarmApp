@@ -12,7 +12,7 @@ interface AlarmDao {
     fun getAll() : LiveData<List<Alarm>>
 
     @Insert
-    suspend fun insert(alarm: Alarm)
+    suspend fun insert(alarm: Alarm) : Long
 
     @Query("UPDATE ALARM SET isRepeat = :isRepeat WHERE id =:alarmId")
     suspend fun updateIsRepeat(isRepeat : Boolean, alarmId : Int)
@@ -21,16 +21,10 @@ interface AlarmDao {
     suspend fun updateOnOff(onOff : Boolean, alarmId : Int)
 
     @Query("SELECT MAX(id) FROM ALARM")
-    suspend fun selectLastAlarmId() : Int
+    suspend fun selectLastAlarmId() : Int?
 
     @Insert
     suspend fun insertRequestCode(requestCode: AlarmRequest)
-
-    @Query("SELECT requestCode FROM ALARMREQUEST WHERE requestCode LiKE :requestCode")
-    suspend fun selectRequestCode(requestCode : String) : List<String>
-
-    @Query("SELECT requestCode FROM ALARM WHERE requestCode = :requestCode")
-    suspend fun selectRequestCode2(requestCode: Int) : Int
 
     @Query("DELETE FROM ALARM")
     suspend fun deleteAll() : Void

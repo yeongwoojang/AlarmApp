@@ -12,15 +12,14 @@ class Alarm() :Serializable{
     var time: String? = null
     var isOn : Boolean  = false
     var isRepeat: Boolean = false
-    var requestCode : Int = -1
     var dayOfWeek : List<DayOfWeek> = mutableListOf(
-        DayOfWeek("월요일마다", false),
-        DayOfWeek("화요일마다", false),
-        DayOfWeek("수요일마다", false),
-        DayOfWeek("목요일마다", false),
-        DayOfWeek("금요일마다", false),
-        DayOfWeek("토요일마다", false),
-        DayOfWeek("일요일마다", false)
+        DayOfWeek("월요일마다", -1,false),
+        DayOfWeek("화요일마다", -1,false),
+        DayOfWeek("수요일마다", -1,false),
+        DayOfWeek("목요일마다", -1,false),
+        DayOfWeek("금요일마다", -1,false),
+        DayOfWeek("토요일마다", -1,false),
+        DayOfWeek("일요일마다", -1,false)
     )
     constructor(amPm : String,time : String, onOff : Boolean, isRepeat : Boolean) : this(){
         this.amPm = amPm

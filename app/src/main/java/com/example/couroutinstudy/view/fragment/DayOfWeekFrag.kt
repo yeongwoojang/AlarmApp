@@ -25,7 +25,9 @@ class DayOfWeekFrag : Fragment() {
     private lateinit var viewModel: BaseViewModel
     private lateinit var mActivity : MainActivity
     private lateinit var alarm : Alarm
-
+    companion object{
+        const val ALARM_MAIN_FRAGMENT: Int = 0
+    }
     override fun onAttach(context: Context) { //onAttach
         super.onAttach(context)
         mActivity = activity as MainActivity
@@ -46,11 +48,9 @@ class DayOfWeekFrag : Fragment() {
         val bundle = mActivity.bundle
         alarm = bundle?.getSerializable("alarmInfo") as Alarm
 
-        Log.d("TEST", "onViewCreated: ${alarm.time}")
         val adapter = DayOfWeekAdapter(viewModel,alarm)
 
 
-        Log.d("DAYOF", "onViewCreated: ${alarm}")
         binding.dayOfweekRv.let{ //recyclerView 설정
             it.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
             it.adapter = adapter
@@ -58,9 +58,25 @@ class DayOfWeekFrag : Fragment() {
         }
 
         binding.btnBack.setOnClickListener {
-            activity?.onBackPressed()
+            val bundle = Bundle()
+            bundle.putSerializable("alarmInfo", alarm)
+            mActivity.changeBundle(bundle)
+            viewModel.changeFragment(ALARM_MAIN_FRAGMENT) //요일 선택 프래그먼트로 교체
         }
+//        viewModel.alarmLd.observe(viewLifecycleOwner, Observer {
+//            this.alarm = alarm
+//        })
 
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        viewModel.alarmLd.observe(viewLifecycleOwner, Observer {
+            this.alarm = alarm
+        })
+
+        viewModel = ViewModelProvider(requireActivity())[BaseViewModel::class.java]
     }
 
     override fun onResume() {

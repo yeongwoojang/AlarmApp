@@ -50,7 +50,6 @@ class DayOfWeekFrag : Fragment() {
 
         val adapter = DayOfWeekAdapter(viewModel,alarm)
 
-
         binding.dayOfweekRv.let{ //recyclerView 설정
             it.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
             it.adapter = adapter

@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemAnimator
@@ -36,9 +37,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout
 
 class MainActivity : AppCompatActivity() {
 
-    private var items = mutableListOf<Alarm>()
     private lateinit var binding: ActivityMainBinding
-//    lateinit var time: String
     var bundle : Bundle? = null
 //    viewModel을 늦은 초기화 하기위한 벙법
 //    private lateinit var viewModel : BaseViewModel
@@ -53,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         const val SOUNT_FRAGMENT = 2
     }
 
-    private val viewModel by viewModels<BaseViewModel>() //androidx.activity 패키지에 정의된 함수를 이용한 뷰모델 초기화 방법
+    private lateinit var  viewModel : BaseViewModel //androidx.activity 패키지에 정의된 함수를 이용한 뷰모델 초기화 방법
     private lateinit var fragmentManager: FragmentManager
     private lateinit var fragmentTransaction: FragmentTransaction
     private val alarmMainFrag = AlarmMainFrag()
@@ -73,6 +72,7 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        viewModel = ViewModelProvider(this)[BaseViewModel::class.java]
         fragmentManager = supportFragmentManager //프래그먼트매니저 초기회
 
         //context를 사용 가능한 시점에서 늦은 뷰모델 초기화 방법
@@ -101,8 +101,11 @@ class MainActivity : AppCompatActivity() {
         viewModel.slideLd.observe(this, Observer { //슬라이드 여부를 관찰하면서 뷰를 올릴지 내릴지 결정
             Log.d(TAG, "slideLd: ${it}")
             if (it == false) {
+//                removeFragment(alarmMainFrag)
+                viewModel.setAlarm(Alarm())
                 binding.slidingview.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
             } else {
+//                initFragment(alarmMainFrag)
                 binding.slidingview.panelState = SlidingUpPanelLayout.PanelState.EXPANDED
             }
         })
@@ -123,10 +126,14 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        viewModel.alarms.observe(this, Observer { alarmList->
-            Log.d(AlarmMainFrag.TAG, "sequence : insert완료")
-            adapter.updateItems(alarmList)
+        viewModel.alarmLd.observe(this, Observer {
+            Log.d(AlarmMainFrag.TAG, "sequence alarmLd: MainActivity :")
         })
+
+//        viewModel.alarms.observe(this, Observer { alarmList->
+//            Log.d(AlarmMainFrag.TAG, "sequence : insert완료")
+//            adapter.updateItems(alarmList)
+//        })
 
     }
 
@@ -148,8 +155,15 @@ class MainActivity : AppCompatActivity() {
             R.anim.enter_from_right,
             R.anim.exit_to_right
         )
-//        fragmentTransaction.addToBackStack(null)
+        fragmentTransaction.addToBackStack(null)
         fragmentTransaction.replace(R.id.dragview, fragment)
+        fragmentTransaction.commit()
+    }
+
+    fun removeFragment(fragment: Fragment){
+        fragmentTransaction = fragmentManager.beginTransaction() //프래그먼트 트랜잭션 초기화
+        fragmentTransaction.remove(fragment)
+        fragmentTransaction.addToBackStack(null)
         fragmentTransaction.commit()
     }
 

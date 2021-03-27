@@ -19,7 +19,7 @@ import kotlinx.coroutines.Dispatchers.Main
 open class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
 
-    private val db = Room.databaseBuilder(
+     val db = Room.databaseBuilder(
         application,
         AppDatabase::class.java, "AlarmDatabase"
     ).fallbackToDestructiveMigration()
@@ -31,9 +31,9 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
     val fragIdLd = MutableLiveData<Int>()
     val timeLd = MutableLiveData<Map<String, Int>>()
     val alarmLd = MutableLiveData<Alarm>()
-    val lastAlarmIdLd: MutableLiveData<Int>? = MutableLiveData<Int>()
+    val lastAlarmIdLd = MutableLiveData<Int>()
     var alarms: LiveData<List<Alarm>>
-    val testLd = MutableLiveData<Long>()
+    val rowNumLd = MutableLiveData<Long>()
 
     init {//초기화 블록
 //        slideLd.value = false
@@ -52,16 +52,22 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun insertAlarm(alarm: Alarm) {
-        runBlocking {
-            var job =  viewModelScope.launch(IO){
-                val t = db.alarmDao().insert(alarm)
-                testLd.postValue(t)
-            }
-            Log.d("sequence", "insertAlarm()실행 ")
-            job.join()
+        Log.d("insertAlarm", "insertAlarm: ${alarm.id}")
+        viewModelScope.launch(Dispatchers.IO) {
+            val rowNum = db.alarmDao().insert(alarm)
+            rowNumLd.postValue(rowNum)
+
+//        runBlocking {
+//            var job =  viewModelScope.launch(Dispatchers.IO){
+//                val t = db.alarmDao().insert(alarm)
+//                testLd.postValue(t)
+//            }
+//            Log.d("sequence", "insertAlarm()실행 ")
+//            job.join()
+//        }
+//        Log.d("sequence", "selectLastAlarmId()실행 ")
+//        selectLastAlarmId()
         }
-        Log.d("sequence", "selectLastAlarmId()실행 ")
-        selectLastAlarmId()
     }
     fun selectLastAlarmId() {
         viewModelScope.launch(Dispatchers.IO) {

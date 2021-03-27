@@ -43,18 +43,17 @@ class DayOfWeekFrag : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {  //onViewCreated
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(requireActivity())[BaseViewModel::class.java]
+
 
         val bundle = mActivity.bundle
         alarm = bundle?.getSerializable("alarmInfo") as Alarm
-
-        val adapter = DayOfWeekAdapter(viewModel,alarm)
-
-        binding.dayOfweekRv.let{ //recyclerView 설정
-            it.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-            it.adapter = adapter
-            adapter.updateItem(alarm.dayOfWeek)
-        }
+//        val adapter = DayOfWeekAdapter(viewModel,alarm)
+//
+//        binding.dayOfweekRv.let{ //recyclerView 설정
+//            it.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+//            it.adapter = adapter
+//            adapter.updateItem(alarm.dayOfWeek)
+//        }
 
         binding.btnBack.setOnClickListener {
             val bundle = Bundle()
@@ -62,20 +61,23 @@ class DayOfWeekFrag : Fragment() {
             mActivity.changeBundle(bundle)
             viewModel.changeFragment(ALARM_MAIN_FRAGMENT) //요일 선택 프래그먼트로 교체
         }
-//        viewModel.alarmLd.observe(viewLifecycleOwner, Observer {
-//            this.alarm = alarm
-//        })
-
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        viewModel = ViewModelProvider(requireActivity())[BaseViewModel::class.java]
+        val adapter = DayOfWeekAdapter(viewModel,alarm)
 
-        viewModel.alarmLd.observe(viewLifecycleOwner, Observer {
+        binding.dayOfweekRv.let{ //recyclerView 설정
+            it.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+            it.adapter = adapter
+            adapter.updateItem(alarm.dayOfWeek)
+        }
+        viewModel.alarmLd.observe(viewLifecycleOwner, Observer {alarm ->
+            Log.d(AlarmMainFrag.TAG, "sequence alarmLd: DayOfWeek : ${alarm}")
             this.alarm = alarm
         })
 
-        viewModel = ViewModelProvider(requireActivity())[BaseViewModel::class.java]
     }
 
     override fun onResume() {

@@ -22,6 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:padding="5dp"
             >
         <TextView
             android:id="@+id/txt_am_pm"
@@ -29,7 +30,7 @@
             android:layout_height="match_parent"
             android:text="@{alarm.amPm}"
             android:textColor="@color/white"
-            android:textSize="30sp"
+            android:textSize="25sp"
             android:gravity="start|center_vertical"
             android:fontFamily="@font/nanum_square_ac_l"
             android:layout_weight="1"
@@ -40,11 +41,23 @@
             android:layout_height="match_parent"
             android:textColor="@color/white"
             android:text="@{alarm.time}"
-            android:textSize="30sp"
+            android:textSize="25sp"
             android:gravity="center_vertical"
             android:fontFamily="@font/nanum_square_ac_l"
-            android:layout_weight="3"
+            android:layout_weight="2"
             />
+          <TextView
+              android:id="@+id/selected_day"
+              android:layout_width="0dp"
+              android:layout_height="match_parent"
+              android:text="월화수목금토일"
+              android:layout_weight="2"
+              android:gravity="center_vertical"
+              android:textColor="@color/gray400"
+              app:selectedDay = "@{alarm}"
+              android:textSize="15sp"
+              android:fontFamily="@font/nanum_square_ac_l"
+              />
         <ToggleButton
             android:id="@+id/btn_active_alarm"
             android:layout_width="0dp"
@@ -53,7 +66,7 @@
             android:textOn=""
             android:textOff=""
             android:layout_gravity="end"
-            android:layout_weight="0.5"
+            android:layout_weight="0.6"
             android:onClick="@{()->adapter.activeAlarm(position)}"
             app:isActive="@{alarm}"
             />

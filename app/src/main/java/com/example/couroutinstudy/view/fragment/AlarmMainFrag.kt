@@ -51,10 +51,11 @@ class AlarmMainFrag : Fragment() {
             ViewModelProvider(requireActivity())[BaseViewModel::class.java] //프래그먼트에서 뷰모델 생성 방법 3
         viewModel.rowNumLd.observe(this, Observer { rowNum->
             Log.d(TAG, "rowNum : ${rowNum}")
+            Log.d(TAG, "onCreate: ${alarm.time}")
             alarm.id = rowNum.toInt()
-            viewModel.updateTime(0, 0)
             Log.d(TAG, "sequence : closeSlide()")
             registerAlarm(alarm)
+            viewModel.updateTime(0, 0)
             viewModel.closeSlide()
         })
     }
@@ -189,28 +190,6 @@ class AlarmMainFrag : Fragment() {
             binding.alarm = alarm //프래그먼트의 생명주기가 끝나면 _binding을 null로 해주었기 때문에
             // binding getter로 접근이 불가하기 때문에 변수로 직접 접근.
         })
-
-//        viewModel.rowNumLd.observe(viewLifecycleOwner, Observer { rowNum->
-//            Log.d(TAG, "rowNum : ${rowNum}")
-//            alarm.id = rowNum.toInt()
-//            viewModel.updateTime(0, 0)
-//            Log.d(TAG, "sequence : closeSlide()")
-//            registerAlarm(alarm)
-//            viewModel.closeSlide()
-//        })
-
-//        viewModel.lastAlarmIdLd?.observe(viewLifecycleOwner, Observer { id ->
-//            alarm.id = id
-//            Log.d(TAG, "sequence : lastAlarmIdLd : ${id} ")
-//            registerAlarm(alarm) //알람을 등록
-//            // slidingView가 닫히고 다시 열릴 떄 onViewCreated를 타지 않게 했기 때문에 alarm객체를 다시 초기화한다.
-////            this.alarm = Alarm()
-////            viewModel.setAlarm(alarm)
-//            viewModel.updateTime(0, 0)
-//            Log.d(TAG, "sequence : closeSlide()")
-//            viewModel.closeSlide()
-//        })
-
     }
 
     override fun onDestroyView() {
@@ -245,7 +224,9 @@ class AlarmMainFrag : Fragment() {
                 if (binding.timePicker.currentMinute < 10) "0${binding.timePicker.currentMinute}" else "${binding.timePicker.currentMinute}"
             alarm.time =
                 "${hour}:${minute}"
+
         }
+        Log.d(TAG, "gdfsgdsfgdsg:  ${alarm.time}")
     }
 
     override fun onResume() {
@@ -274,6 +255,8 @@ class AlarmMainFrag : Fragment() {
                 // Calendar 객체에 알람이 울릴 시간과 분을 지정
                 cal.set(Calendar.HOUR_OF_DAY, hourOfDay.toInt())
                 cal.set(Calendar.MINUTE, minute.toInt())
+//                cal.set(Calendar.SECOND,0)
+//                cal.set(Calendar.MILLISECOND,0)
                 setPendingIntent(alarmManager, alarmIntent, cal, i) //PendingIntent 설정
             }
         }
@@ -281,7 +264,9 @@ class AlarmMainFrag : Fragment() {
             // Calendar 객체에 알람이 울릴 시간과 분을 지정
             cal.set(Calendar.HOUR_OF_DAY, hourOfDay.toInt())
             cal.set(Calendar.MINUTE, minute.toInt())
-
+//            cal.set(Calendar.SECOND,0)
+//            cal.set(Calendar.MILLISECOND,0)
+            Log.d(TAG, "alarm Main : ${cal.time} ")
             setPendingIntent(alarmManager, alarmIntent, cal, -1) //PendingIntent 설정
         }
     }

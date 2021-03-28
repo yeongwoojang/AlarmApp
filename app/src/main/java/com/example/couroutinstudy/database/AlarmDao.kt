@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.couroutinstudy.model.vo.Alarm
 import com.example.couroutinstudy.model.vo.AlarmRequest
+import com.example.couroutinstudy.model.vo.DayOfWeek
 
 @Dao
 interface AlarmDao {
@@ -22,6 +23,9 @@ interface AlarmDao {
 
     @Query("SELECT MAX(id) FROM ALARM")
     suspend fun selectLastAlarmId() : Int?
+
+    @Query("UPDATE ALARM SET dayOfWeek= :dayOfWeek WHERE id=:alarmId")
+    suspend fun updateRequestCode(dayOfWeek: List<DayOfWeek>, alarmId :Int)
 
     @Insert
     suspend fun insertRequestCode(requestCode: AlarmRequest)

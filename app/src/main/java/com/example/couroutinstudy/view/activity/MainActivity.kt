@@ -130,10 +130,10 @@ class MainActivity : AppCompatActivity() {
             Log.d(AlarmMainFrag.TAG, "sequence alarmLd: MainActivity :")
         })
 
-//        viewModel.alarms.observe(this, Observer { alarmList->
-//            Log.d(AlarmMainFrag.TAG, "sequence : insert완료")
-//            adapter.updateItems(alarmList)
-//        })
+        viewModel.alarms.observe(this, Observer { alarmList->
+            Log.d(AlarmMainFrag.TAG, "sequence : insert완료")
+            adapter.updateItems(alarmList)
+        })
 
     }
 

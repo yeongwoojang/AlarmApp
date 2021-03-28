@@ -19,11 +19,12 @@ import kotlinx.coroutines.Dispatchers.Main
 open class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
 
-     val db = Room.databaseBuilder(
-        application,
-        AppDatabase::class.java, "AlarmDatabase"
-    ).fallbackToDestructiveMigration()
-        .build()
+    private var db : AppDatabase? = null
+//     val db = Room.databaseBuilder(
+//        application,
+//        AppDatabase::class.java, "AlarmDatabase"
+//    ).fallbackToDestructiveMigration()
+//        .build()
 
     private val workManageer: WorkManager = WorkManager.getInstance(application.applicationContext)
 
@@ -36,42 +37,31 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
     val rowNumLd = MutableLiveData<Long>()
 
     init {//초기화 블록
-//        slideLd.value = false
+        db = AppDatabase.getInstance(application) //AppDatabase 싱글톤 객체를 가져온다.
         Log.d("BaseViewModel", "ViewModel InIt: ")
         alarms = getAll()
     }
 
     fun getAll(): LiveData<List<Alarm>> {
-        return db.alarmDao().getAll()
+            return db!!.alarmDao().getAll()
     }
 
     fun deleteAll() {
         viewModelScope.launch(Dispatchers.IO) {
-            db.alarmDao().deleteAll()
+            db!!.alarmDao().deleteAll()
         }
     }
 
     fun insertAlarm(alarm: Alarm) {
         Log.d("insertAlarm", "insertAlarm: ${alarm.id}")
         viewModelScope.launch(Dispatchers.IO) {
-            val rowNum = db.alarmDao().insert(alarm)
+            val rowNum = db!!.alarmDao().insert(alarm)
             rowNumLd.postValue(rowNum)
-
-//        runBlocking {
-//            var job =  viewModelScope.launch(Dispatchers.IO){
-//                val t = db.alarmDao().insert(alarm)
-//                testLd.postValue(t)
-//            }
-//            Log.d("sequence", "insertAlarm()실행 ")
-//            job.join()
-//        }
-//        Log.d("sequence", "selectLastAlarmId()실행 ")
-//        selectLastAlarmId()
         }
     }
     fun selectLastAlarmId() {
         viewModelScope.launch(Dispatchers.IO) {
-            val lastAlarmId: Int? = db.alarmDao().selectLastAlarmId()
+            val lastAlarmId: Int? = db!!.alarmDao().selectLastAlarmId()
             Log.d("머야", "selectLastAlarmId: ${lastAlarmId}")
             if (lastAlarmId != null) {
                 lastAlarmIdLd?.postValue(lastAlarmId)
@@ -84,7 +74,7 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun updateIsRepeat(alarm: Alarm) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.alarmDao().updateIsRepeat(alarm.isRepeat, alarm.id)
+            db!!.alarmDao().updateIsRepeat(alarm.isRepeat, alarm.id)
         }
     }
 
@@ -92,14 +82,14 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun updateOnOff(alarm: Alarm) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.alarmDao().updateOnOff(alarm.isOn, alarm.id)
+            db!!.alarmDao().updateOnOff(alarm.isOn, alarm.id)
         }
     }
 
 
     fun deleteAlarm(alarm: Alarm) {
         viewModelScope.launch(Dispatchers.IO) {
-            db.alarmDao().delete(alarm)
+            db!!.alarmDao().delete(alarm)
         }
     }
 

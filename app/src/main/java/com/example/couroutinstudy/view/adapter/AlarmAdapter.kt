@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
+import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.text.Spannable
@@ -75,6 +76,7 @@ class AlarmAdapter(private val mContext: Context, private val viewModel: BaseVie
         else vibrator.vibrate(200) //토글버튼 클릭 시 진동 발생
 
         if (!isOn) {
+            Log.d("asdfdasf", "sfgsd : isOn -> false ")
             for (i in 0..6) { //선택한 Alarm 아이템의 예약된 모든 알람을 Cancel
                 if (items[position].dayOfWeek[i].requestCode != -1) {
                     val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -90,6 +92,7 @@ class AlarmAdapter(private val mContext: Context, private val viewModel: BaseVie
                 }
             }
         } else {
+            Log.d("asdfdasf", "sfgsd : isOn -> true ")
             val cal = Calendar.getInstance()
             val time = items[position].time //Alarm 객체에 담긴 시간을 calendar 객체에 지정
             val arr = time?.split(":")
@@ -137,11 +140,15 @@ class AlarmAdapter(private val mContext: Context, private val viewModel: BaseVie
     ) {
         val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(mContext, AlarmReceiver::class.java)
+        val bundle = Bundle()
+        bundle.putSerializable("alarmData", alarm)
+        bundle.putSerializable("alarmDate", cal)
+        intent.putExtra("bundle", bundle)
         intent.action = "sendNotification"
-
+        Log.d("asdfdasf", "sfgsd : ${cal.time} ")
         val pendingIntent =
             PendingIntent.getBroadcast(
-                mContext
+                mContext.applicationContext
                 , alarm.dayOfWeek[index].requestCode, intent
                 , PendingIntent.FLAG_CANCEL_CURRENT
             )

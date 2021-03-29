@@ -36,12 +36,15 @@ class AlarmReceiver : BroadcastReceiver() {
     private var workManager: WorkManager? = null
     private var alarmManager: AlarmManager? = null
     override fun onReceive(context: Context?, intent: Intent?) {
+        Log.d(TAG, "onReceive: 타냐")
+        Log.d(TAG, "onReceive: ${intent?.action}")
         intent?.let {
             workManager = context?.let { WorkManager.getInstance(context) }
             db = context?.let {  AppDatabase.getInstance(context) }
             manager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             if (intent.action.equals("sendNotification")) { //알람을 보내겠다는 액션이 들어왔을 시
                 val bundle = it.getBundleExtra("bundle")
+                Log.d(TAG, "onReceive: ${bundle}")
                 if (bundle != null) { //넘어온 Bundle이 null이 아니라면
                     val alarm: Alarm = bundle.getSerializable("alarmData") as Alarm //등록한 알람 정보
                     val alarmDate =

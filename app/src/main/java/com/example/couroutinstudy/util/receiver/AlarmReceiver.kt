@@ -36,22 +36,22 @@ class AlarmReceiver : BroadcastReceiver() {
     private var workManager: WorkManager? = null
     private var alarmManager: AlarmManager? = null
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.d(TAG, "onReceive: 타냐")
-        Log.d(TAG, "onReceive: ${intent?.action}")
         intent?.let {
             workManager = context?.let { WorkManager.getInstance(context) }
             db = context?.let {  AppDatabase.getInstance(context) }
             manager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             if (intent.action.equals("sendNotification")) { //알람을 보내겠다는 액션이 들어왔을 시
                 val bundle = it.getBundleExtra("bundle")
-                Log.d(TAG, "onReceive: ${bundle}")
                 if (bundle != null) { //넘어온 Bundle이 null이 아니라면
                     val alarm: Alarm = bundle.getSerializable("alarmData") as Alarm //등록한 알람 정보
                     val alarmDate =
                         bundle.getSerializable("alarmDate") as Calendar // 알람이 울리는 시간(Calendar 객체)
+                    Log.d(TAG, "onReceive 알람시간: ${alarmDate.time}")
                     val currentDate = Calendar.getInstance() //현재시간 정보를 담고있는 "Calendar"객체
                     var dayOfWeek: String? = ""
                     //등록된 알람이 onReceive를 탔을 때 몇요일 알람이 넘어온지 확인
+                    Log.d(TAG, "onReceive요일: ${alarmDate.time}")
+
                     when (alarmDate.get(Calendar.DAY_OF_WEEK)) {
                         1 -> dayOfWeek = "일"
                         2 -> dayOfWeek = "월"
@@ -82,17 +82,20 @@ class AlarmReceiver : BroadcastReceiver() {
                         //ex) 일요일 반복 알람을 등록했을 때 현재 월요일인 경우 앞 날짜의 일요일이 예약되는 것이 아니라
                         // 전날 일요일이 예약이 되어버린다. 따라서 이 경우는 다음 주 일요일 알람만 재지정해두고 "Notification"을 띄우지 않는다.
                         Log.d(TAG, "onReceive: 알람 시간과 현재시간이 맞지않아 알람이 울리지 않음")
+                        Log.d(TAG, "onReceive 데이오브 위크: ${alarm.dayOfWeek}")
                     }
-
+                    
                     //Bundle로 넘어온 Alarm 객체에 몇요일 마다 알람이 울리게 설정 되어있는지 체크
                     for (i in 0..6) {
                         if (alarm.dayOfWeek[i].isCheck) { // Alarm 객체에  해당 요일 체크되어 있다면
-                            if (currentDate.get(Calendar.DAY_OF_WEEK) == i + 2 && currentDate.get(Calendar.DAY_OF_WEEK) != 1){
+                            if (alarmDate.get(Calendar.DAY_OF_WEEK) == i + 2 && alarmDate.get(Calendar.DAY_OF_WEEK) != 1){
                                 //오늘과 같은 요일에 체크되어있는데 일요일이 아닐 시
+                                Log.d(TAG, "onReceive언제 알림등록: ${alarmDate.get(Calendar.DAY_OF_WEEK)}")
                                 registerAlarm(alarm,alarmDate,context) //다음 주 같은 시간 같은 요일에 다시 알람 등록
                                 break
-                            } else if (currentDate.get(Calendar.DAY_OF_WEEK) == 1 && i == 6) {
+                            } else if (alarmDate.get(Calendar.DAY_OF_WEEK) == 1 && i == 6) {
                                 //오늘과 같은 요일에 체크되어있는데 일요일 일시
+                                Log.d(TAG, "onReceive언제 알림등록: ${alarmDate.get(Calendar.DAY_OF_WEEK)}")
                                 registerAlarm(alarm,alarmDate,context) //다음 주 같은 시간 같은 요일에 다시 알람 등록
                                 break
                             }
@@ -174,8 +177,10 @@ class AlarmReceiver : BroadcastReceiver() {
     * */
     private fun registerAlarm(alarm: Alarm, cal: Calendar, context: Context) {
         Log.d(TAG, "onReceive: 등록")
+        Log.d(TAG, "onReceive: 이건뭐야 ${cal.time}")
         val pId = (Math.random() * 100000000).toInt()
         cal.add(Calendar.DATE, 7) //다음주에도 같은 시간에 알람 예약
+        Log.d(TAG, "onReceive: 알람이 등록되는 시간 ${cal.time}")
 //        cal.set(Calendar.SECOND,0)
 //        cal.set(Calendar.MILLISECOND,0)
         val curDayOfWeek = cal.get(Calendar.DAY_OF_WEEK) //현재 몇요일인지 구한다.
@@ -183,7 +188,7 @@ class AlarmReceiver : BroadcastReceiver() {
         alarm.dayOfWeek[reRegisterDay].requestCode = pId // Alarm 객체의 해당요일에 requestCode를 새로 할당한다.
 
        CoroutineScope(IO).launch {
-            db!!.alarmDao().updateRequestCode(alarm.dayOfWeek,alarm.id)
+            db!!.alarmDao().updateDayOfWeek(alarm.dayOfWeek,alarm.id)
        }
 
 

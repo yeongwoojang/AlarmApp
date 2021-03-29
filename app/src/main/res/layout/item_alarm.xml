@@ -17,6 +17,7 @@
         android:layout_height="wrap_content"
         android:background="@color/transparent"
         android:orientation="vertical"
+        android:onClick="@{()-> adapter.clickItem(position)}"
         >
         <LinearLayout
             android:layout_width="match_parent"
@@ -53,8 +54,8 @@
               android:text="월화수목금토일"
               android:layout_weight="2"
               android:gravity="center_vertical"
-              android:textColor="@color/gray400"
-              app:selectedDay = "@{alarm}"
+              android:textColor="@color/orage400"
+              app:selectedDay = "@{alarm.dayOfWeek}"
               android:textSize="15sp"
               android:fontFamily="@font/nanum_square_ac_l"
               />

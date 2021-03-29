@@ -158,13 +158,15 @@ class AlarmMainFrag : Fragment() {
         super.onActivityCreated(savedInstanceState)
 //        viewModel =
 //            ViewModelProvider(requireActivity())[BaseViewModel::class.java] //프래그먼트에서 뷰모델 생성 방법 3
-        viewModel.rowNumLd.removeObservers(viewLifecycleOwner)
+//        viewModel.rowNumLd.removeObservers(viewLifecycleOwner)
 
         Log.d(TAG, "sequence alarmLd AlarmMain : onActivityCreated")
         //프래그먼트가 내려갔다가 다시 올라와도 시간을 유지시키기 위한 timeLiveData observe
         viewModel.timeLd.observe(viewLifecycleOwner, Observer { time ->
+            Log.d(TAG, "onActivityCreated: 뭐야")
             //API23버전 이전과 이후로 방법이 다르기 때문에 분기처리
-            if (time.get("hourOfDay") != 0 && time.get("minute") != 0) {
+            if (time.get("hourOfDay") != 0 || time.get("minute") != 0) {
+                Log.d(TAG, "onActivityCreated: 이거아님?")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     binding.timePicker.hour = time.get("hourOfDay")!!
                     binding.timePicker.minute = time.get("minute")!!

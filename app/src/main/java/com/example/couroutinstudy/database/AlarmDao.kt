@@ -21,11 +21,8 @@ interface AlarmDao {
     @Query("UPDATE ALARM SET isOn = :onOff WHERE id =:alarmId")
     suspend fun updateOnOff(onOff : Boolean, alarmId : Int)
 
-    @Query("SELECT MAX(id) FROM ALARM")
-    suspend fun selectLastAlarmId() : Int?
-
     @Query("UPDATE ALARM SET dayOfWeek= :dayOfWeek WHERE id=:alarmId")
-    suspend fun updateRequestCode(dayOfWeek: List<DayOfWeek>, alarmId :Int)
+    suspend fun updateDayOfWeek(dayOfWeek: List<DayOfWeek>, alarmId :Int)
 
     @Insert
     suspend fun insertRequestCode(requestCode: AlarmRequest)

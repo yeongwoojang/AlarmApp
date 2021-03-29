@@ -19,12 +19,7 @@ import kotlinx.coroutines.Dispatchers.Main
 open class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
 
-    private var db : AppDatabase? = null
-//     val db = Room.databaseBuilder(
-//        application,
-//        AppDatabase::class.java, "AlarmDatabase"
-//    ).fallbackToDestructiveMigration()
-//        .build()
+    var db: AppDatabase? = null
 
     private val workManageer: WorkManager = WorkManager.getInstance(application.applicationContext)
 
@@ -32,7 +27,6 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
     val fragIdLd = MutableLiveData<Int>()
     val timeLd = MutableLiveData<Map<String, Int>>()
     val alarmLd = MutableLiveData<Alarm>()
-    val lastAlarmIdLd = MutableLiveData<Int>()
     var alarms: LiveData<List<Alarm>>
     val rowNumLd = MutableLiveData<Long>()
 
@@ -43,7 +37,7 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun getAll(): LiveData<List<Alarm>> {
-            return db!!.alarmDao().getAll()
+        return db!!.alarmDao().getAll()
     }
 
     fun deleteAll() {
@@ -59,60 +53,46 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
             rowNumLd.postValue(rowNum)
         }
     }
-    fun selectLastAlarmId() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val lastAlarmId: Int? = db!!.alarmDao().selectLastAlarmId()
-            Log.d("머야", "selectLastAlarmId: ${lastAlarmId}")
-            if (lastAlarmId != null) {
-                lastAlarmIdLd?.postValue(lastAlarmId)
-            } else {
-                lastAlarmIdLd?.postValue(1)
+        fun updateIsRepeat(alarm: Alarm) {
+            viewModelScope.launch(Dispatchers.IO) {
+                db!!.alarmDao().updateIsRepeat(alarm.isRepeat, alarm.id)
             }
         }
-    }
 
 
-    fun updateIsRepeat(alarm: Alarm) {
-        viewModelScope.launch(Dispatchers.IO) {
-            db!!.alarmDao().updateIsRepeat(alarm.isRepeat, alarm.id)
+        fun updateOnOff(alarm: Alarm) {
+            viewModelScope.launch(Dispatchers.IO) {
+                db!!.alarmDao().updateOnOff(alarm.isOn, alarm.id)
+            }
         }
-    }
 
 
-
-    fun updateOnOff(alarm: Alarm) {
-        viewModelScope.launch(Dispatchers.IO) {
-            db!!.alarmDao().updateOnOff(alarm.isOn, alarm.id)
+        fun deleteAlarm(alarm: Alarm) {
+            viewModelScope.launch(Dispatchers.IO) {
+                db!!.alarmDao().delete(alarm)
+            }
         }
-    }
 
-
-    fun deleteAlarm(alarm: Alarm) {
-        viewModelScope.launch(Dispatchers.IO) {
-            db!!.alarmDao().delete(alarm)
+        fun openSlide() {// open slide
+            slideLd.value = true
         }
-    }
 
-    fun openSlide() {// open slide
-        slideLd.value = true
-    }
+        fun closeSlide() { //close slide
+            slideLd.value = false
+        }
 
-    fun closeSlide() { //close slide
-        slideLd.value = false
-    }
+        fun changeFragment(id: Int) { //프래그먼트 전환 메소드
+            fragIdLd.value = id
+        }
 
-    fun changeFragment(id: Int) { //프래그먼트 전환 메소드
-        fragIdLd.value = id
-    }
+        fun updateTime(hourOfDay: Int, minute: Int) {
+            val map = mutableMapOf<String, Int>()
+            map.put("hourOfDay", hourOfDay)
+            map.put("minute", minute)
+            timeLd.value = map
+        }
 
-    fun updateTime(hourOfDay: Int, minute: Int) {
-        val map = mutableMapOf<String, Int>()
-        map.put("hourOfDay", hourOfDay)
-        map.put("minute", minute)
-        timeLd.value = map
-    }
-
-    fun setAlarm(alarm: Alarm) {
-        alarmLd.value = alarm
-    }
+        fun setAlarm(alarm: Alarm) {
+            alarmLd.value = alarm
+        }
 }

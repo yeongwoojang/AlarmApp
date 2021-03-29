@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/alarm_main_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="false">
+
+        <LinearLayout
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/blue_gray400"
+            android:orientation="horizontal"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:fontFamily="@font/nanum_square_ac_l"
+                android:gravity="center"
+                android:text="취소"
+                android:textColor="@color/orage400"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:fontFamily="@font/nanum_square_ac_l"
+                android:gravity="center"
+                android:text="알림 추가"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/btn_alarm_modify"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:fontFamily="@font/nanum_square_ac_l"
+                android:gravity="center"
+                android:text="수정"
+                android:textColor="@color/orage400"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/content_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@drawable/style_toolbar"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            app:layout_constraintVertical_bias="0.0"
+            tools:layout_editor_absoluteX="0dp">
+
+            <LinearLayout
+                android:id="@+id/set_time_layout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                >
+
+                <TimePicker
+                    android:id="@+id/time_picker"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:timePickerMode="spinner" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_menu"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@drawable/style_menu"
+                android:gravity="center"
+                android:orientation="vertical">
+
+              <androidx.recyclerview.widget.RecyclerView
+                  android:id="@+id/day_of_week_rv"
+                  android:layout_width="wrap_content"
+                  android:layout_height="0dp"
+                  android:layout_weight="1"
+                  />
+                <TextView
+                    android:id="@+id/menu_sound"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/style_menu"
+                    android:fontFamily="@font/nanum_square_ac_l"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="10dp"
+                    android:text="사운드"
+                    android:textColor="@color/white"
+                    android:textSize="15sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:orientation="horizontal"
+                    android:layout_weight="1"
+                    >
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/style_menu"
+                        android:fontFamily="@font/nanum_square_ac_l"
+                        android:gravity="center_vertical"
+                        android:paddingLeft="10dp"
+                        android:text="다시 알림"
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:layout_weight="8"
+                        />
+
+                    <ToggleButton
+                        android:id="@+id/btn_active_repeat_alarm"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="end"
+                        android:layout_weight="1"
+                        android:background="@drawable/custom_toggle"
+                        android:textOff=""
+                        android:textOn="" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

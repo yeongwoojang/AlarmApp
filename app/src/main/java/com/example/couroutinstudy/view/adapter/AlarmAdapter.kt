@@ -19,9 +19,13 @@ import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.couroutinstudy.R
 import com.example.couroutinstudy.databinding.ItemAlarmBinding
 import com.example.couroutinstudy.model.vo.Alarm
+import com.example.couroutinstudy.model.vo.DayOfWeek
 import com.example.couroutinstudy.util.receiver.AlarmReceiver
+import com.example.couroutinstudy.view.activity.MainActivity
+import com.example.couroutinstudy.view.activity.ModifyAlarmActivity
 import com.example.couroutinstudy.view.fragment.AlarmMainFrag
 import com.example.couroutinstudy.viewmodel.BaseViewModel
 import java.util.*
@@ -32,7 +36,7 @@ class AlarmAdapter(private val mContext: Context, private val viewModel: BaseVie
 
     private val thisObj = this
     private var items: List<Alarm> = mutableListOf<Alarm>()
-    private var isWholeUpdate = false //리사이클러뷰의 전체아이템의 변경인지 아닌지 확인하기 위한 변수
+    private var isWholeUpdate = -1 //리사이클러뷰의 전체아이템의 변경인지 아닌지 확인하기 위한 변수
     private var updatePosition = 0
 
     inner class AlarmViewHolder(private val binding: ItemAlarmBinding) :
@@ -52,13 +56,33 @@ class AlarmAdapter(private val mContext: Context, private val viewModel: BaseVie
     // RecyclerView 업데이트
     fun updateItems(items: List<Alarm>) {
         this.items = items
-        if (isWholeUpdate) notifyDataSetChanged() //리사이클러뷰 전체사항에 대한 변경이라면 notifyDataSetChanged()
-        else notifyItemChanged(updatePosition) //아니라면 변화가 있는 포지션에 대해서만 notifyItemChanged(position)
+        if (isWholeUpdate==1){
+            notifyItemChanged(updatePosition) //아니라면 변화가 있는 포지션에 대해서만 notifyItemChanged(position)
+        }
+        else{
+            Log.d("ㅁㄴㅇㄹ", "updateItems: 이거겟지")
+            notifyDataSetChanged()//리사이클러뷰 전체사항에 대한 변경이라면 notifyDataSetChanged()
+        }
     }
 
 
+
+
+
+    //알람목록 클릭 이벤트
+    fun clickItem(position: Int){
+        Log.d("asdf", "position:${position} ")
+
+        Log.d("Asdf", "clickItem: ${items[position]}")
+       val intent =  Intent(mContext,ModifyAlarmActivity::class.java)
+        intent.putExtra("alarm",items[position])
+        mContext.startActivity(intent)
+        (mContext as MainActivity).overridePendingTransition(R.anim.up_animation,R.anim.none)
+    }
+
+    //토글버튼 클릭 이벤트
     fun activeAlarm(position: Int) {
-        isWholeUpdate = false //토큰버튼을 클릭하면 리사이클러뷰에서 하나의 아이템만 변화하므로 "isWholeUpdate" = false
+        isWholeUpdate = 1 //토큰버튼을 클릭하면 리사이클러뷰에서 하나의 아이템만 변화하므로 "isWholeUpdate" = false
         updatePosition = position //업데이트 된 포지션값 저장
         val isOn = !items[position].isOn
         items[position].isOn = isOn //리사이클러뷰 해당 포지션번째 아이탬의 isOn 속성을 on Off 하는 부분
@@ -138,6 +162,8 @@ class AlarmAdapter(private val mContext: Context, private val viewModel: BaseVie
         cal: Calendar,
         index: Int
     ) {
+
+        Log.d("Sfgsdfgd", "Sfgsdfgd: ${cal.time}")
         val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(mContext, AlarmReceiver::class.java)
         val bundle = Bundle()
@@ -145,7 +171,7 @@ class AlarmAdapter(private val mContext: Context, private val viewModel: BaseVie
         bundle.putSerializable("alarmDate", cal)
         intent.putExtra("bundle", bundle)
         intent.action = "sendNotification"
-        Log.d("asdfdasf", "sfgsd : ${cal.time} ")
+
         val pendingIntent =
             PendingIntent.getBroadcast(
                 mContext.applicationContext
@@ -171,28 +197,17 @@ class AlarmAdapter(private val mContext: Context, private val viewModel: BaseVie
 
 @BindingAdapter("isActive")
 fun setActive(toggleButton: ToggleButton, alarm: Alarm) {
+    Log.d("asdfsdf", "setActive: ${alarm}")
     toggleButton.isChecked = alarm.isOn
-
 }
 
 @BindingAdapter("selectedDay")
-fun setSelectedColor(textView: TextView, alarm: Alarm) {
-    val ssb = SpannableStringBuilder(textView.text)
-    val textLength = 13
+fun setSelectedColor(textView: TextView, dayOfWeek: List<DayOfWeek>) {
+    val a : List<String> = mutableListOf("월","화","수","목","금","토","일")
+    textView.text = ""
     for (i in 0..6) {
-        if (alarm.dayOfWeek[i].isCheck) {
-            Log.d(
-                "asd",
-                "setSelectedColor: ${alarm.dayOfWeek[i].dayOfWeek}${alarm.dayOfWeek[i].isCheck}"
-            )
-            ssb.setSpan(
-                ForegroundColorSpan(Color.parseColor("#FB8C00")),
-                i,
-                i + 1,
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-            )
+        if (dayOfWeek[i].isCheck) {
+            textView.text = textView.text.toString() +" ${a[i]}"
         }
     }
-
-    textView.setText(ssb)
 }

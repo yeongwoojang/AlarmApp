@@ -41,14 +41,16 @@ class AlarmMainFrag : Fragment() {
     private var alarmManager: AlarmManager? = null
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        Log.d(TAG, "LifeCycle: onAttach()")
+        Log.d(TAG, "AlarmMainFrag: onAttach()")
         mActivity = activity as MainActivity
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "AlarmMainFrag: onCreate()")
         viewModel =
             ViewModelProvider(requireActivity())[BaseViewModel::class.java] //프래그먼트에서 뷰모델 생성 방법 3
+
         viewModel.rowNumLd.observe(this, Observer { rowNum->
             Log.d(TAG, "rowNum : ${rowNum}")
             Log.d(TAG, "onCreate: ${alarm.time}")
@@ -58,13 +60,14 @@ class AlarmMainFrag : Fragment() {
             viewModel.updateTime(0, 0)
             viewModel.closeSlide()
         })
+
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d(TAG, "sequence alarmLd AlarmMain : onCreateView")
+        Log.d(TAG, "AlarmMainFrag: onCreateView()")
         _binding = FragmentAlarmMainBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -72,7 +75,7 @@ class AlarmMainFrag : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(TAG, "sequence alarmLd AlarmMain : onViewCreated")
+        Log.d(TAG, "AlarmMainFrag: onViewCreated()")
 //        viewModel = ViewModelProvider(activity as FragmentActivity)[BaseViewModel::class.java] 프래그먼트에서 뷰모델 생성 방법 1
 //        viewModel = ViewModelProvider(activity as ViewModelStoreOwner)[BaseViewModel::class.java] 프래그먼트에서 뷰모델 생성 방법 2
 
@@ -154,13 +157,12 @@ class AlarmMainFrag : Fragment() {
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
-        Log.d(TAG, "LifeCycle: onActivityCreated()")
+        Log.d(TAG, "AlarmMainFrag: onActivityCreated()")
         super.onActivityCreated(savedInstanceState)
 //        viewModel =
 //            ViewModelProvider(requireActivity())[BaseViewModel::class.java] //프래그먼트에서 뷰모델 생성 방법 3
 //        viewModel.rowNumLd.removeObservers(viewLifecycleOwner)
 
-        Log.d(TAG, "sequence alarmLd AlarmMain : onActivityCreated")
         //프래그먼트가 내려갔다가 다시 올라와도 시간을 유지시키기 위한 timeLiveData observe
         viewModel.timeLd.observe(viewLifecycleOwner, Observer { time ->
             Log.d(TAG, "onActivityCreated: 뭐야")
@@ -195,14 +197,15 @@ class AlarmMainFrag : Fragment() {
     }
 
     override fun onDestroyView() {
-        Log.d(TAG, "LifeCycle: onDestroyView()")
+        Log.d(TAG, "AlarmMainFrag: onDestroyView()")
+
         super.onDestroyView()
         //프래그먼트의 생명주기가 끝날 때 binding도 같이 삭제
         _binding = null
     }
 
     override fun onDestroy() {
-        Log.d(TAG, "LifeCycle: onDestroy()")
+        Log.d(TAG, "AlarmMainFrag: onDestroy()")
         super.onDestroy()
     }
 

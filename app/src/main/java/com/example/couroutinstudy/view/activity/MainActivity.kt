@@ -7,6 +7,7 @@ import android.app.KeyguardManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -55,25 +56,28 @@ class MainActivity : AppCompatActivity() {
     private lateinit var  viewModel : BaseViewModel //androidx.activity 패키지에 정의된 함수를 이용한 뷰모델 초기화 방법
     private lateinit var fragmentManager: FragmentManager
     private lateinit var fragmentTransaction: FragmentTransaction
-    private val alarmMainFrag = AlarmMainFrag()
-    private val dayOfWeekFrag = DayOfWeekFrag()
+    private lateinit var alarmMainFrag : AlarmMainFrag
+    private lateinit var  dayOfWeekFrag : DayOfWeekFrag
 
     override fun onStart() {
         super.onStart()
-        Log.d(TAG, "onStart: ")
-        initFragment(alarmMainFrag) //초기 slidingView 설정
+        Log.d(TAG, "MainActivitySequence onStart: ")
 
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "MainActivitySequence onCreate: ")
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
 
         viewModel = ViewModelProvider(this)[BaseViewModel::class.java]
         fragmentManager = supportFragmentManager //프래그먼트매니저 초기회
+        alarmMainFrag = AlarmMainFrag()
+        dayOfWeekFrag = DayOfWeekFrag()
+        initFragment(alarmMainFrag) //초기 slidingView 설정
 
         //context를 사용 가능한 시점에서 늦은 뷰모델 초기화 방법
 //        viewModel = ViewModelProvider(this)[BaseViewModel::class.java]
@@ -157,23 +161,33 @@ class MainActivity : AppCompatActivity() {
         )
         fragmentTransaction.addToBackStack(null)
         fragmentTransaction.replace(R.id.dragview, fragment)
-        fragmentTransaction.commit()
+        fragmentTransaction.commitAllowingStateLoss()
     }
 
     fun removeFragment(fragment: Fragment){
         fragmentTransaction = fragmentManager.beginTransaction() //프래그먼트 트랜잭션 초기화
         fragmentTransaction.remove(fragment)
         fragmentTransaction.addToBackStack(null)
-        fragmentTransaction.commit()
+        fragmentTransaction.commitAllowingStateLoss()
     }
 
      fun changeBundle(bundle : Bundle){
         this.bundle = bundle
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onResume() {
+        Log.d(TAG, "MainActivitySequence onResume: ")
+        super.onResume()
 
+    }
+
+    override fun onDestroy() {
+        Log.d(TAG, "MainActivitySequence onDestroy: ")
+        super.onDestroy()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
     }
 }
 

@@ -72,9 +72,8 @@ class AlarmAdapter(private val mContext: Context, private val viewModel: BaseVie
     //알람목록 클릭 이벤트
     fun clickItem(position: Int){
         Log.d("asdf", "position:${position} ")
-
         Log.d("Asdf", "clickItem: ${items[position]}")
-       val intent =  Intent(mContext,ModifyAlarmActivity::class.java)
+        val intent =  Intent(mContext,ModifyAlarmActivity::class.java)
         intent.putExtra("alarm",items[position])
         mContext.startActivity(intent)
         (mContext as MainActivity).overridePendingTransition(R.anim.up_animation,R.anim.none)

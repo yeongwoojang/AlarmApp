@@ -11,7 +11,8 @@ import kotlinx.coroutines.launch
 class ModifyViewModel(application: Application) : BaseViewModel(application){
 
     val updateDayOfWeekLD = MutableLiveData<Boolean>()
-    val alarmLdForModyfyActi = MutableLiveData<Alarm>()
+    val dayAlarmLd = MutableLiveData<Alarm>()
+    val dayOfWeekListLd = MutableLiveData<List<Int>>()
 
     fun updateDayOfWeek(dayOfWeek:  List<DayOfWeek>, alarmId : Int){
         viewModelScope.launch(IO) {
@@ -20,5 +21,12 @@ class ModifyViewModel(application: Application) : BaseViewModel(application){
         }
     }
 
+    fun modifyAlarm(alarm : Alarm){
+        dayAlarmLd.value = alarm
+    }
+
+    fun updateDayOfList(list : List<Int>){
+        dayOfWeekListLd.value = list
+    }
 
 }

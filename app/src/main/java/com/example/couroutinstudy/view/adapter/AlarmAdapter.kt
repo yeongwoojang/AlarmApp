@@ -196,7 +196,6 @@ class AlarmAdapter(private val mContext: Context, private val viewModel: BaseVie
 
 @BindingAdapter("isActive")
 fun setActive(toggleButton: ToggleButton, alarm: Alarm) {
-    Log.d("asdfsdf", "setActive: ${alarm}")
     toggleButton.isChecked = alarm.isOn
 }
 

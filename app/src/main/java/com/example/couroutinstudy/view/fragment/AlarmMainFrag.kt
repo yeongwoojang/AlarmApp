@@ -284,7 +284,7 @@ class AlarmMainFrag : Fragment() {
         bundle.putSerializable("alarmData", alarm)
         bundle.putSerializable("alarmDate", cal)
         alarmIntent.putExtra("bundle", bundle)
-
+        Log.d(TAG, "힘들다ㅏ: ${alarm}")
         if(position==-1){
             val calendar = Calendar.getInstance()
             val dayOfWeekCode = calendar.get(Calendar.DAY_OF_WEEK) //오늘의 요일을 구한다.

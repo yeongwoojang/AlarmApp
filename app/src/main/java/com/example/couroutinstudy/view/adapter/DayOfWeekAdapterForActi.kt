@@ -74,7 +74,7 @@ class DayOfWeekAdapterForActi(private val mContext: Context, private var alarm: 
 
             Log.d("asdf", "dayOfWeekClick: ${dayAlarm[position]}")
         }else{ //요일을 off해주면
-            dayAlarm[position].requestCode = -1 //해당 요일에 알람 requestCode 삭제
+//            dayAlarm[position].requestCode = -1 //해당 요일에 알람 requestCode 삭제
         }
         notifyItemChanged(position)
         alarm.dayOfWeek = dayAlarm

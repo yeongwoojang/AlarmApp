@@ -19,35 +19,38 @@ import com.example.couroutinstudy.model.vo.Alarm
 import com.example.couroutinstudy.util.receiver.AlarmReceiver
 import com.example.couroutinstudy.view.adapter.DayOfWeekAdapterForActi
 import com.example.couroutinstudy.viewmodel.ModifyViewModel
-import kotlinx.android.synthetic.main.fragment_day_of_week.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.collections.ArrayList
 
 class ModifyAlarmActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityModifyAlarmBinding
     private lateinit var viewModel: ModifyViewModel
-    private var beforeUpdateAlarmDayList = mutableListOf<Int>()
+    private var offAlarmDayList = mutableListOf<Int>() //알람이 off 되어있는 요일의 인덱스를 담을 "List"
+    private var onAlarmDayList = mutableListOf<Int>()
     private lateinit var alarm : Alarm
+    private lateinit var mContext : Context
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityModifyAlarmBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+        mContext = this
         viewModel = ViewModelProvider(this)[ModifyViewModel::class.java]//뷰모델 초기화
 
         val intent = intent
         alarm = intent.getSerializableExtra("alarm") as Alarm // 알람목록중 하나 클릭 했을 시 넘겨받은 "Alarm"객체
         val adapter = DayOfWeekAdapterForActi(this, alarm, viewModel) //어댑터 설정
 
-        Log.d("이게모지", "onCreate: ${alarm}")
         for (i in alarm.dayOfWeek.indices) {
             if (!alarm.dayOfWeek[i].isCheck) {
-                Log.d("이게모지", "onCreate: ${i}")
-                beforeUpdateAlarmDayList.add(i)
+                offAlarmDayList.add(i) //알람이 off되어있는 요일의 인덱스를 추가
+            }else{
+                onAlarmDayList.add(i)
             }
         }
-        Log.d("이게모지", "onCreate: ${beforeUpdateAlarmDayList}")
 
         binding.dayOfWeekRv.let {//리사이클러뷰, 설정
             it.adapter = adapter
@@ -80,31 +83,58 @@ class ModifyAlarmActivity : AppCompatActivity() {
             overridePendingTransition(R.anim.none, R.anim.down_animation)
         }
 
+        //맨처음에는 알람이 등록되어있는 요일이었다가 알람이 취소되었다면 처리해야되는데
+        //어떻게 처리해야 할까?
+
         binding.btnAlarmModify.setOnClickListener { //수정버튼 클릭 이벤트
-            Log.d("HelloWorld", "수정버튼클릭")
-            for (i in beforeUpdateAlarmDayList.indices) {
-                //if문 : 알람이 울리는 요일을 수정해서 on으로 바꿨을 시
-                //alarm : 요일을 수정하기 전 "Alarm"객체
-                //modifiedAlarm : 요일 수정 후 "Alarm"객체
-                val position = beforeUpdateAlarmDayList[i]
-                if (alarm.dayOfWeek[position].isCheck){
-                    //바꾼 요일만 새로 알람을 등록해준다.
-                    Log.d("HelloWorld", "onCreate: $position")
-                    val time = alarm.time
-                    val arr = time?.split(":")
-                    val hourOfDay = arr!!.get(0) //알람이 울릴 "시간"
-                    val minute = arr!!.get(1) //알람이 울릴 "분"
-                    val cal = Calendar.getInstance()
-                    val dayOfWeekCode = position+2 //요일 코드
-                    cal.set(Calendar.DAY_OF_WEEK,dayOfWeekCode)
-                    cal.set(Calendar.HOUR_OF_DAY, hourOfDay.toInt())
-                    cal.set(Calendar.MINUTE, minute.toInt())
-                    Log.d("calTime", "onCreate: ${cal.time}")
-                    val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                    val alarmIntent = Intent(this, AlarmReceiver::class.java)
-                    alarmIntent.action="sendNotification"
-                    setPendingIntent(alarmManager, alarmIntent, cal, position)
+            //두개의 for문을 병렬적으로 실행해보기 위해 사용하는 "Coroutine"
+            CoroutineScope(Dispatchers.Default).launch {
+                Log.d("코루틴 테스트", "이건 코루틴: ")
+                for (i in offAlarmDayList.indices) {
+                    //alarm : 요일을 수정하기 전 "Alarm"객체
+                    //if문 : 알람이 울리는 요일을 수정해서 on으로 바꿨을 시
+                    val position = offAlarmDayList[i]
+                    if (alarm.dayOfWeek[position].isCheck){
+                        //바꾼 요일만 새로 알람을 등록해준다.
+                        val time = alarm.time
+                        val arr = time?.split(":")
+                        val hourOfDay = arr!!.get(0) //알람이 울릴 "시간"
+                        val minute = arr!!.get(1) //알람이 울릴 "분"
+                        val cal = Calendar.getInstance()
+                        val dayOfWeekCode = position+2 //요일 코드
+
+                        cal.set(Calendar.DAY_OF_WEEK,dayOfWeekCode) //알람이 울릴 "요일" 설정
+                        cal.set(Calendar.HOUR_OF_DAY, hourOfDay.toInt()) //알람이 울릴 "시간" 설정
+                        cal.set(Calendar.MINUTE, minute.toInt()) //알림이 울릴 "분" 설정
+
+                        viewModel.updateDayOfWeek(alarm.dayOfWeek,alarm.id)
+
+                        val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                        val alarmIntent = Intent(mContext, AlarmReceiver::class.java)
+                        alarmIntent.action="sendNotification"
+                        setPendingIntent(alarmManager, alarmIntent, cal, position)
+                    }
                 }
+            }
+
+
+            for(i in onAlarmDayList.indices){
+                val position = onAlarmDayList[i] //알람이 "on"되어있던 요일의 인덱스
+                if(!alarm.dayOfWeek[position].isCheck){ //알람이 "off"로 바뀌었다면
+                    //알람을 삭제해야한다.
+                    val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    val intent = Intent(this,AlarmReceiver::class.java)
+                    intent.action = "sendNotification"
+
+                    val pendingIntent = PendingIntent.getBroadcast(
+                        this
+                        ,alarm.dayOfWeek[position].requestCode //해당 요일에 등록되어있던 알람요청 코드
+                        ,intent
+                    ,PendingIntent.FLAG_CANCEL_CURRENT)
+                    alarmManager.cancel(pendingIntent)
+                    alarm.dayOfWeek[position].requestCode = -1 //해당 요일에 알람 requestCode 삭제
+                }
+
             }
 
             viewModel.updateDayOfWeek(alarm.dayOfWeek, alarm.id)
@@ -112,8 +142,9 @@ class ModifyAlarmActivity : AppCompatActivity() {
             overridePendingTransition(R.anim.none, R.anim.down_animation)
         }
 
+        //알람이 울리는 요일을 수정할 때마다 Observe하는 리스너
         viewModel.alarmLd.observe(this, Observer { modifiedAlarm ->
-            Log.d("dsfgsdgsdfgsdfgdsfgdf", "sdfgsdfg: sdfsdsadf")
+            //modifiedAlarm : 요일 수정 후 "Alarm"객체
             alarm = modifiedAlarm
         })
 

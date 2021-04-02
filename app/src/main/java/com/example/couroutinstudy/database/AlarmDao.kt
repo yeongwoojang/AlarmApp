@@ -15,9 +15,6 @@ interface AlarmDao {
     @Insert
     suspend fun insert(alarm: Alarm) : Long
 
-    @Query("UPDATE ALARM SET isRepeat = :isRepeat WHERE id =:alarmId")
-    suspend fun updateIsRepeat(isRepeat : Boolean, alarmId : Int)
-
     @Query("UPDATE ALARM SET isOn = :onOff WHERE id =:alarmId")
     suspend fun updateOnOff(onOff : Boolean, alarmId : Int)
 

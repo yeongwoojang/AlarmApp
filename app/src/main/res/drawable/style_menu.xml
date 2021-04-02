@@ -3,8 +3,13 @@
     <!-- Border -->
     <item>
         <shape>
+            <corners
+                android:topLeftRadius="20dp"
+                android:topRightRadius="20dp"
+                />
+
             <solid
-                android:color="@color/gray50"></solid>
+                android:color="@color/blue_gray500"/>
         </shape>
 
     </item>
@@ -14,7 +19,10 @@
         >
         <shape>
             <solid android:color="@color/blue_gray500"></solid>
-
+            <corners
+                android:topLeftRadius="20dp"
+                android:topRightRadius="20dp"
+                />
         </shape>
     </item>
 </layer-list>

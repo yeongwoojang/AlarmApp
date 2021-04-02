@@ -11,7 +11,6 @@ class Alarm() :Serializable{
     var amPm: String? = null
     var time: String? = null
     var isOn : Boolean  = false
-    var isRepeat: Boolean = false
     var dayOfWeek : List<DayOfWeek> = mutableListOf(
         DayOfWeek("월요일마다", -1,false),
         DayOfWeek("화요일마다", -1,false),
@@ -25,11 +24,10 @@ class Alarm() :Serializable{
         this.amPm = amPm
         this.time = time
         this.isOn = onOff
-        this.isRepeat = isRepeat
     }
 
     override fun toString(): String {
-        return "Alarm(id=$id, amPm=$amPm, time=$time, isOn=$isOn, isRepeat=$isRepeat, dayOfWeek=$dayOfWeek)"
+        return "Alarm(id=$id, amPm=$amPm, time=$time, isOn=$isOn,dayOfWeek=$dayOfWeek)"
     }
 
 

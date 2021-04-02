@@ -53,11 +53,6 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
             rowNumLd.postValue(rowNum)
         }
     }
-        fun updateIsRepeat(alarm: Alarm) {
-            viewModelScope.launch(Dispatchers.IO) {
-                db!!.alarmDao().updateIsRepeat(alarm.isRepeat, alarm.id)
-            }
-        }
 
 
         fun updateOnOff(alarm: Alarm) {

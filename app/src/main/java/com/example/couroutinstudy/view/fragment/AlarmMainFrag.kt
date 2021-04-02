@@ -144,16 +144,6 @@ class AlarmMainFrag : Fragment() {
             alarm.time = time
             viewModel.updateTime(hourOfDay, minute)
         }
-
-        binding.btnActiveRepeatAlarm.setOnClickListener {
-            //다시알림 메뉴를 활성화 했을 때 실행되어야 할 코드 작성
-            alarm.isRepeat = !alarm.isRepeat
-            checkAlarmData() //알람객체에 "time"할당
-            viewModel.setAlarm(alarm) //프래그먼트간 공유할 alarm 객체를 업데이트
-
-        }
-
-
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -315,7 +305,3 @@ class AlarmMainFrag : Fragment() {
     }
 }
 
-@BindingAdapter("isRepeat")
-fun setRepeat(toggleButton: ToggleButton, alarm: Alarm) {
-    toggleButton.isChecked = alarm.isRepeat
-}

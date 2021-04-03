@@ -15,12 +15,12 @@ class AlarmWorker(appContext: Context, workParams: WorkerParameters) :
     override fun doWork(): Result {
         player.isLooping = true // 벨소리 player 무한반복
         player.start() // 벨소리 시작
-        for (i in 0..30) {
+        for (i in 0..300) {
 
 
             val count = workDataOf("Progress" to i)
             setProgressAsync(count)
-            Thread.sleep(1000)
+            Thread.sleep(100)
             if (!player.isPlaying) {
                 playerStop = true
             }

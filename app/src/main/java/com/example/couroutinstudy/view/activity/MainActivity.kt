@@ -39,7 +39,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    var bundle : Bundle? = null
+    var bundle: Bundle? = null
 //    viewModel을 늦은 초기화 하기위한 벙법
 //    private lateinit var viewModel : BaseViewModel
 
@@ -53,11 +53,11 @@ class MainActivity : AppCompatActivity() {
         const val SOUNT_FRAGMENT = 2
     }
 
-    private lateinit var  viewModel : BaseViewModel //androidx.activity 패키지에 정의된 함수를 이용한 뷰모델 초기화 방법
+    private lateinit var viewModel: BaseViewModel //androidx.activity 패키지에 정의된 함수를 이용한 뷰모델 초기화 방법
     private lateinit var fragmentManager: FragmentManager
     private lateinit var fragmentTransaction: FragmentTransaction
-    private lateinit var alarmMainFrag : AlarmMainFrag
-    private lateinit var  dayOfWeekFrag : DayOfWeekFrag
+    private lateinit var alarmMainFrag: AlarmMainFrag
+    private lateinit var dayOfWeekFrag: DayOfWeekFrag
 
     override fun onStart() {
         super.onStart()
@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity() {
 
         //context를 사용 가능한 시점에서 늦은 뷰모델 초기화 방법
 //        viewModel = ViewModelProvider(this)[BaseViewModel::class.java]
-        val adapter = AlarmAdapter(this,viewModel)
+        val adapter = AlarmAdapter(this, viewModel)
         binding.alarmRv.let {
             it.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
             it.adapter = adapter
@@ -134,7 +134,7 @@ class MainActivity : AppCompatActivity() {
             Log.d(AlarmMainFrag.TAG, "sequence alarmLd: MainActivity :")
         })
 
-        viewModel.alarms.observe(this, Observer { alarmList->
+        viewModel.alarms.observe(this, Observer { alarmList ->
             Log.d(AlarmMainFrag.TAG, "sequence : insert완료")
             adapter.updateItems(alarmList)
         })
@@ -142,9 +142,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        if (binding.slidingview.panelState == SlidingUpPanelLayout.PanelState.COLLAPSED){
+            super.onBackPressed()
+        }
         if (supportFragmentManager.backStackEntryCount == 1) {
             binding.slidingview.panelState = SlidingUpPanelLayout.PanelState.COLLAPSED
             Log.d(TAG, "onBackPressed: cnt=1")
+
         } else {
             Log.d(TAG, "onBackPressed: cnt=0")
             super.onBackPressed()
@@ -164,14 +168,14 @@ class MainActivity : AppCompatActivity() {
         fragmentTransaction.commitAllowingStateLoss()
     }
 
-    fun removeFragment(fragment: Fragment){
+    fun removeFragment(fragment: Fragment) {
         fragmentTransaction = fragmentManager.beginTransaction() //프래그먼트 트랜잭션 초기화
         fragmentTransaction.remove(fragment)
         fragmentTransaction.addToBackStack(null)
         fragmentTransaction.commitAllowingStateLoss()
     }
 
-     fun changeBundle(bundle : Bundle){
+    fun changeBundle(bundle: Bundle) {
         this.bundle = bundle
     }
 

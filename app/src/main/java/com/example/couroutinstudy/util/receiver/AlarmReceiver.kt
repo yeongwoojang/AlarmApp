@@ -19,6 +19,8 @@ import com.example.couroutinstudy.R
 import com.example.couroutinstudy.database.AppDatabase
 import com.example.couroutinstudy.model.vo.Alarm
 import com.example.couroutinstudy.util.work.AlarmWorker
+import com.example.couroutinstudy.util.work.TestWorker
+import com.example.couroutinstudy.view.activity.AlarmActivity
 import com.example.couroutinstudy.view.activity.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -29,7 +31,8 @@ class AlarmReceiver : BroadcastReceiver() {
     companion object {
         val TAG = AlarmReceiver.javaClass.simpleName
     }
-    var db : AppDatabase? = null
+
+    var db: AppDatabase? = null
 
     private var alarmTime: String? = ""
     lateinit var manager: NotificationManager
@@ -38,7 +41,7 @@ class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         intent?.let {
             workManager = context?.let { WorkManager.getInstance(context) }
-            db = context?.let {  AppDatabase.getInstance(context) }
+            db = context?.let { AppDatabase.getInstance(context) }
             manager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             if (intent.action.equals("sendNotification")) { //알람을 보내겠다는 액션이 들어왔을 시
                 val bundle = it.getBundleExtra("bundle")
@@ -84,19 +87,36 @@ class AlarmReceiver : BroadcastReceiver() {
                         Log.d(TAG, "onReceive: 알람 시간과 현재시간이 맞지않아 알람이 울리지 않음")
                         Log.d(TAG, "onReceive 데이오브 위크: ${alarm.dayOfWeek}")
                     }
-                    
+
                     //Bundle로 넘어온 Alarm 객체에 몇요일 마다 알람이 울리게 설정 되어있는지 체크
                     for (i in 0..6) {
                         if (alarm.dayOfWeek[i].isCheck) { // Alarm 객체에  해당 요일 체크되어 있다면
-                            if (alarmDate.get(Calendar.DAY_OF_WEEK) == i + 2 && alarmDate.get(Calendar.DAY_OF_WEEK) != 1){
+                            if (alarmDate.get(Calendar.DAY_OF_WEEK) == i + 2 && alarmDate.get(
+                                    Calendar.DAY_OF_WEEK
+                                ) != 1
+                            ) {
                                 //오늘과 같은 요일에 체크되어있는데 일요일이 아닐 시
-                                Log.d(TAG, "onReceive언제 알림등록: ${alarmDate.get(Calendar.DAY_OF_WEEK)}")
-                                registerAlarm(alarm,alarmDate,context) //다음 주 같은 시간 같은 요일에 다시 알람 등록
+                                Log.d(
+                                    TAG,
+                                    "onReceive언제 알림등록: ${alarmDate.get(Calendar.DAY_OF_WEEK)}"
+                                )
+                                registerAlarm(
+                                    alarm,
+                                    alarmDate,
+                                    context
+                                ) //다음 주 같은 시간 같은 요일에 다시 알람 등록
                                 break
                             } else if (alarmDate.get(Calendar.DAY_OF_WEEK) == 1 && i == 6) {
                                 //오늘과 같은 요일에 체크되어있는데 일요일 일시
-                                Log.d(TAG, "onReceive언제 알림등록: ${alarmDate.get(Calendar.DAY_OF_WEEK)}")
-                                registerAlarm(alarm,alarmDate,context) //다음 주 같은 시간 같은 요일에 다시 알람 등록
+                                Log.d(
+                                    TAG,
+                                    "onReceive언제 알림등록: ${alarmDate.get(Calendar.DAY_OF_WEEK)}"
+                                )
+                                registerAlarm(
+                                    alarm,
+                                    alarmDate,
+                                    context
+                                ) //다음 주 같은 시간 같은 요일에 다시 알람 등록
                                 break
                             }
                         }
@@ -122,7 +142,7 @@ class AlarmReceiver : BroadcastReceiver() {
             notificationLayout.setOnClickPendingIntent(R.id.txt_pause, clickPendingIntent)
             var builder: NotificationCompat.Builder? = null
 
-            val intent = Intent(context, MainActivity::class.java)
+            val intent = Intent(context, AlarmActivity::class.java)
             val pendingIntent =
                 PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -156,18 +176,19 @@ class AlarmReceiver : BroadcastReceiver() {
                     .addTag("player")
                     .build()
 
+
             workManager?.enqueue(workRequest)
             manager.notify(1234, notification)
+
         }
     }
 
     //알람 중지 메소드
-    fun alarmCancel(context: Context?) {
+    private fun alarmCancel(context: Context?) {
         context?.let {
             manager.cancel(1234)
             workManager?.cancelAllWorkByTag("player")
         }
-
     }
 
     /*
@@ -177,7 +198,7 @@ class AlarmReceiver : BroadcastReceiver() {
     * */
     private fun registerAlarm(alarm: Alarm, cal: Calendar, context: Context) {
         Log.d(TAG, "onReceive: 등록")
-        Log.d(TAG, "onReceive: 이건뭐야 ${cal.time}")
+        Log.d(TAG, "onReceive: onReceive로 전달 받은 시간 ${cal.time}")
         val pId = (Math.random() * 100000000).toInt()
         cal.add(Calendar.DATE, 7) //다음주에도 같은 시간에 알람 예약
         Log.d(TAG, "onReceive: 알람이 등록되는 시간 ${cal.time}")
@@ -187,9 +208,9 @@ class AlarmReceiver : BroadcastReceiver() {
         val reRegisterDay = if (curDayOfWeek != 1) curDayOfWeek - 2 else 6 //요일 코드를 인덱스 값에 맞춰준다.
         alarm.dayOfWeek[reRegisterDay].requestCode = pId // Alarm 객체의 해당요일에 requestCode를 새로 할당한다.
 
-       CoroutineScope(IO).launch {
-            db!!.alarmDao().updateDayOfWeek(alarm.dayOfWeek,alarm.id)
-       }
+        CoroutineScope(IO).launch {
+            db!!.alarmDao().updateDayOfWeek(alarm.dayOfWeek, alarm.id)
+        }
 
 
         alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -198,7 +219,10 @@ class AlarmReceiver : BroadcastReceiver() {
 
         val bundle = Bundle()
         bundle.putSerializable("alarmData", alarm) //Alarm객체를  리시버에 넘긴다.
-        bundle.putSerializable("alarmDate", cal) // 알람이 울렸던 시간에서 일주일을 더한 시간을 담고있는 Calendar 객체를 리시버에 넘긴다.
+        bundle.putSerializable(
+            "alarmDate",
+            cal
+        ) // 알람이 울렸던 시간에서 일주일을 더한 시간을 담고있는 Calendar 객체를 리시버에 넘긴다.
 
         alarmIntent.putExtra("bundle", bundle)
         val pendingIntent: PendingIntent =

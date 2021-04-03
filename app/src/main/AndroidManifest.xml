@@ -20,7 +20,8 @@
             />
         <activity android:name=".view.activity.AlarmActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            />
+            >
+        </activity>
         <activity
             android:name=".view.activity.MainActivity"
             android:showOnLockScreen="true"

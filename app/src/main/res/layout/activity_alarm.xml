@@ -5,27 +5,59 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.activity.AlarmActivity">
+    android:background="@color/blue_gray500"
+    tools:context=".view.activity.AlarmActivity"
+    >
 
     <TextView
+        android:id="@+id/topbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="알람시간입니다."
+        android:padding="30dp"
         android:gravity="center"
         android:textSize="20sp"
-        android:textColor="@color/black"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:textColor="@color/white"
+        android:fontFamily="@font/nanum_square_ac_b"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         />
-    <ProgressBar
-        android:id="@+id/indeterminateBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+
+    <com.dinuscxj.progressbar.CircleProgressBar
+        android:id="@+id/circle_progressbar"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_marginTop="10dp"
+        app:line_width="40dp"
+        app:progress_background_color="@color/gray400"
+        app:progress_end_color="@color/orage400"
+        app:progress_shader="linear"
+        app:progress_start_color="@color/orage200"
+        app:progress_stroke_cap="round"
+        app:progress_stroke_width="40dp"
+        app:progress_style="solid_line"
+        app:progress_text_color="@color/transparent"
+        app:layout_constraintTop_toTopOf="@+id/topbar"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         />
 
+    <Button
+        android:id="@+id/cancelBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:text="중지"
+        android:textSize="20sp"
+        android:fontFamily="@font/nanum_square_ac_l"
+        android:textColor="@color/white"
+        android:background="@drawable/style_round_btn2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>

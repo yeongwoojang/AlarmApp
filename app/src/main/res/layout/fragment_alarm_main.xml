@@ -4,10 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="alarm"
             type="com.example.couroutinstudy.model.vo.Alarm" />
     </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/alarm_main_fragment"
         android:layout_width="match_parent"
@@ -76,8 +78,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="2"
-                android:gravity="center"
-                >
+                android:gravity="center">
 
                 <TimePicker
                     android:id="@+id/time_picker"
@@ -90,7 +91,7 @@
                 android:id="@+id/layout_menu"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_weight="0.5"
                 android:background="@drawable/style_menu"
                 android:gravity="center"
                 android:orientation="vertical">
@@ -102,31 +103,11 @@
                     android:layout_weight="1"
                     android:background="@drawable/style_menu"
                     android:fontFamily="@font/nanum_square_ac_l"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="10dp"
-                    android:text="반복"
+                    android:gravity="center"
+                    android:text="요일 선택"
                     android:textColor="@color/white"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:id="@+id/menu_sound"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/style_menu"
-                    android:fontFamily="@font/nanum_square_ac_l"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="10dp"
-                    android:text="사운드"
-                    android:textColor="@color/white"
-                    android:textSize="15sp" />
-
+                    android:textSize="20sp" />
             </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.5"
-                />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

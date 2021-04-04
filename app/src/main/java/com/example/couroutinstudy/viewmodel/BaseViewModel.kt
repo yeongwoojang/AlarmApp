@@ -62,11 +62,7 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
         }
 
 
-        fun deleteAlarm(alarm: Alarm) {
-            viewModelScope.launch(Dispatchers.IO) {
-                db!!.alarmDao().delete(alarm)
-            }
-        }
+
 
         fun openSlide() {// open slide
             slideLd.value = true

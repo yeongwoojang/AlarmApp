@@ -83,6 +83,25 @@ class ModifyAlarmActivity : AppCompatActivity() {
             overridePendingTransition(R.anim.none, R.anim.down_animation)
         }
 
+        binding.btnAlarmDelete.setOnClickListener {
+            viewModel.deleteAlarm(alarm)
+            for(i in 0..6){
+                if (alarm.dayOfWeek[i].requestCode != -1) {
+                    val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    val intent = Intent(mContext, AlarmReceiver::class.java)
+                    intent.action = "sendNotification"
+                    val pendingIntent =
+                        PendingIntent.getBroadcast(
+                            mContext
+                            , alarm.dayOfWeek[i].requestCode, intent
+                            , PendingIntent.FLAG_CANCEL_CURRENT
+                        )
+                    alarmManager.cancel(pendingIntent)
+                }
+            }
+            finish()
+            overridePendingTransition(R.anim.none, R.anim.down_animation)
+        }
         //맨처음에는 알람이 등록되어있는 요일이었다가 알람이 취소되었다면 처리해야되는데
         //어떻게 처리해야 할까?
 

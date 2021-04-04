@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.couroutinstudy.model.vo.Alarm
 import com.example.couroutinstudy.model.vo.DayOfWeek
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 
@@ -27,6 +28,11 @@ class ModifyViewModel(application: Application) : BaseViewModel(application){
 
     fun updateDayOfList(list : List<Int>){
         dayOfWeekListLd.value = list
+    }
+    fun deleteAlarm(alarm: Alarm) {
+        viewModelScope.launch(Dispatchers.IO) {
+            db!!.alarmDao().delete(alarm)
+        }
     }
 
 }

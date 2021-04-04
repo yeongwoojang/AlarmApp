@@ -95,6 +95,24 @@
                   android:layout_weight="1"
                   />
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                >
+            <Button
+                android:id="@+id/btn_alarm_delete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="16dp"
+                android:layout_marginLeft="16dp"
+                android:text="알람삭제"
+                android:textSize="20sp"
+                android:textColor="@color/white"
+                android:fontFamily="@font/nanum_square_ac_l"
+                android:background="@drawable/style_round_btn2"
+                />
+            </LinearLayout>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

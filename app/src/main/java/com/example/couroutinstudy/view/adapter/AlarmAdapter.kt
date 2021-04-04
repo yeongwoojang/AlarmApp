@@ -57,10 +57,11 @@ class AlarmAdapter(private val mContext: Context, private val viewModel: BaseVie
     fun updateItems(items: List<Alarm>) {
         this.items = items
         if (isWholeUpdate==1){
+            Log.d("updateItems", "updateItems1: ${updatePosition}")
             notifyItemChanged(updatePosition) //아니라면 변화가 있는 포지션에 대해서만 notifyItemChanged(position)
         }
         else{
-            Log.d("ㅁㄴㅇㄹ", "updateItems: 이거겟지")
+            Log.d("updateItems", "updateItems: ${updatePosition}")
             notifyDataSetChanged()//리사이클러뷰 전체사항에 대한 변경이라면 notifyDataSetChanged()
         }
     }
@@ -71,6 +72,7 @@ class AlarmAdapter(private val mContext: Context, private val viewModel: BaseVie
 
     //알람목록 클릭 이벤트
     fun clickItem(position: Int){
+        isWholeUpdate = 0
         Log.d("asdf", "position:${position} ")
         Log.d("Asdf", "clickItem: ${items[position]}")
         val intent =  Intent(mContext,ModifyAlarmActivity::class.java)
@@ -152,8 +154,9 @@ class AlarmAdapter(private val mContext: Context, private val viewModel: BaseVie
     }
 
     override fun onBindViewHolder(holder: AlarmViewHolder, position: Int) {
-        val item = items[position]
-        holder.bind(item, position)
+        val safePosition = holder.adapterPosition
+        val item = items[safePosition]
+        holder.bind(item, safePosition)
     }
 
     private fun setPendingIntent(

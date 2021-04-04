@@ -68,19 +68,17 @@ class DayOfWeekAdapterForActi(private val mContext: Context, private var alarm: 
         val dayAlarm = alarm.dayOfWeek
         dayAlarm[position].isCheck = !dayAlarm[position].isCheck // 해당요일의 알람을 울릴 것인지 안울릴 것인지 on 또는 off
 
-        if(dayAlarm[position].isCheck){ //요일을 on 해주면
-            val pId = (Math.random() * 100000000).toInt()
-            dayAlarm[position].requestCode = pId // 해당요일에 알람 requestCode 생성
-
-            Log.d("asdf", "dayOfWeekClick: ${dayAlarm[position]}")
-        }else{ //요일을 off해주면
-//            dayAlarm[position].requestCode = -1 //해당 요일에 알람 requestCode 삭제
-        }
+//        if(dayAlarm[position].isCheck){ //요일을 on 해주면
+//            val pId = (Math.random() * 100000000).toInt()
+//            dayAlarm[position].requestCode = pId // 해당요일에 알람 requestCode 생성
+//
+//            Log.d("asdf", "dayOfWeekClick: ${dayAlarm[position]}")
+//        }else{ //요일을 off해주면
+////            dayAlarm[position].requestCode = -1 //해당 요일에 알람 requestCode 삭제
+//        }
         notifyItemChanged(position)
         alarm.dayOfWeek = dayAlarm
         viewModel.setAlarm(alarm)
-
-//        viewModel.updateDayOfWeek(dayAlarm,alarm.id)
     }
 }
 

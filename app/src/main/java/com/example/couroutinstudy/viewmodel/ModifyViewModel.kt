@@ -14,6 +14,7 @@ class ModifyViewModel(application: Application) : BaseViewModel(application){
     val updateDayOfWeekLD = MutableLiveData<Boolean>()
     val dayAlarmLd = MutableLiveData<Alarm>()
     val dayOfWeekListLd = MutableLiveData<List<Int>>()
+    val updateAlarmLD = MutableLiveData<Boolean>()
 
     fun updateDayOfWeek(dayOfWeek:  List<DayOfWeek>, alarmId : Int){
         viewModelScope.launch(IO) {
@@ -26,6 +27,12 @@ class ModifyViewModel(application: Application) : BaseViewModel(application){
         dayAlarmLd.value = alarm
     }
 
+    fun updateAlarm(amPm : String?, time : String?, onOff : Boolean, dayOfWeek: List<DayOfWeek>, alarmId :Int){
+        viewModelScope.launch(IO) {
+            db!!.alarmDao().updateAlarm(amPm, time, onOff,dayOfWeek, alarmId)
+            updateAlarmLD.postValue(true)
+        }
+    }
     fun updateDayOfList(list : List<Int>){
         dayOfWeekListLd.value = list
     }

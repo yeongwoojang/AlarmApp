@@ -135,8 +135,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         viewModel.alarms.observe(this, Observer { alarmList ->
-            Log.d(AlarmMainFrag.TAG, "sequence : insert완료")
-            Log.d(TAG, "DeleteAlarm: $alarmList")
+            Log.d(TAG, "UpdateAlarm!: $alarmList")
             adapter.updateItems(alarmList)
         })
 

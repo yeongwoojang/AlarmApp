@@ -18,10 +18,12 @@ import com.example.couroutinstudy.databinding.ActivityModifyAlarmBinding
 import com.example.couroutinstudy.model.vo.Alarm
 import com.example.couroutinstudy.util.receiver.AlarmReceiver
 import com.example.couroutinstudy.view.adapter.DayOfWeekAdapterForActi
+import com.example.couroutinstudy.view.fragment.AlarmMainFrag
 import com.example.couroutinstudy.viewmodel.ModifyViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.*
 
 class ModifyAlarmActivity : AppCompatActivity() {
@@ -30,8 +32,10 @@ class ModifyAlarmActivity : AppCompatActivity() {
     private lateinit var viewModel: ModifyViewModel
     private var offAlarmDayList = mutableListOf<Int>() //알람이 off 되어있는 요일의 인덱스를 담을 "List"
     private var onAlarmDayList = mutableListOf<Int>()
-    private lateinit var alarm : Alarm
-    private lateinit var mContext : Context
+    private var prevAlarmTime: String? = ""
+    private var newRegisterCount: Int = 0
+    private lateinit var alarm: Alarm
+    private lateinit var mContext: Context
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityModifyAlarmBinding.inflate(layoutInflater)
@@ -43,11 +47,21 @@ class ModifyAlarmActivity : AppCompatActivity() {
         val intent = intent
         alarm = intent.getSerializableExtra("alarm") as Alarm // 알람목록중 하나 클릭 했을 시 넘겨받은 "Alarm"객체
         val adapter = DayOfWeekAdapterForActi(this, alarm, viewModel) //어댑터 설정
+        prevAlarmTime = alarm.time
 
+        binding.timePicker.setOnTimeChangedListener { view, hourOfDay, minute ->
+            Log.d(AlarmMainFrag.TAG, "onViewCreated: 타임피커 읽음")
+            val amPm = if (hourOfDay < 12) "오전" else "오후" //선택한 시간이 오전인지 오후인지 식별
+            val hour: Any = if (hourOfDay < 10) "0${hourOfDay}" else "${hourOfDay}"
+            val min: Any = if (minute < 10) "0${minute}" else "${minute}"
+            val time = "${hour}:${min}"
+            alarm.amPm = amPm
+            alarm.time = time
+        }
         for (i in alarm.dayOfWeek.indices) {
             if (!alarm.dayOfWeek[i].isCheck) {
                 offAlarmDayList.add(i) //알람이 off되어있는 요일의 인덱스를 추가
-            }else{
+            } else {
                 onAlarmDayList.add(i)
             }
         }
@@ -85,9 +99,10 @@ class ModifyAlarmActivity : AppCompatActivity() {
 
         binding.btnAlarmDelete.setOnClickListener {
             viewModel.deleteAlarm(alarm)
-            for(i in 0..6){
+            for (i in 0..6) {
                 if (alarm.dayOfWeek[i].requestCode != -1) {
-                    val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    val alarmManager =
+                        mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
                     val intent = Intent(mContext, AlarmReceiver::class.java)
                     intent.action = "sendNotification"
                     val pendingIntent =
@@ -106,57 +121,108 @@ class ModifyAlarmActivity : AppCompatActivity() {
         //어떻게 처리해야 할까?
 
         binding.btnAlarmModify.setOnClickListener { //수정버튼 클릭 이벤트
-            //두개의 for문을 병렬적으로 실행해보기 위해 사용하는 "Coroutine"
-            CoroutineScope(Dispatchers.Default).launch {
-                Log.d("코루틴 테스트", "이건 코루틴: ")
-                for (i in offAlarmDayList.indices) {
-                    //alarm : 요일을 수정하기 전 "Alarm"객체
-                    //if문 : 알람이 울리는 요일을 수정해서 on으로 바꿨을 시
-                    val position = offAlarmDayList[i]
-                    if (alarm.dayOfWeek[position].isCheck){
-                        //바꾼 요일만 새로 알람을 등록해준다.
-                        val time = alarm.time
-                        val arr = time?.split(":")
-                        val hourOfDay = arr!!.get(0) //알람이 울릴 "시간"
-                        val minute = arr!!.get(1) //알람이 울릴 "분"
-                        val cal = Calendar.getInstance()
-                        val dayOfWeekCode = position+2 //요일 코드
+                val time = alarm.time
+                val arr = time?.split(":")
+                val hourOfDay = arr!!.get(0) //알람이 울릴 "시간"
+                val minute = arr!!.get(1) //알람이 울릴 "분"
+                val cal = Calendar.getInstance()
+                var requestCodeCnt = 0
+                //알람을 수정할 수 있다는 것 자체가 무조건 하나의 요일에는 "requestCode"가 담겨있다는 것이다.
+                for (i in 0..6) {
+                    if (alarm.dayOfWeek[i].isCheck) { //요일이 체크 되어있는 상태라면
+                        newRegisterCount++
+                        cal.set(Calendar.DAY_OF_WEEK,i + 2) // Calendar 객체에 Alarm 객체에 체크된 요일을 Setting
+                        // Calendar 객체에 알람이 울릴 시간과 분을 지정
+                        cal.set(Calendar.HOUR_OF_DAY, hourOfDay.toInt())
+                        cal.set(Calendar.MINUTE, minute.toInt())
+                        if (alarm.dayOfWeek[i].requestCode == -1) {
+                            val pId = (Math.random() * 100000000).toInt()
+                            alarm.dayOfWeek[i].requestCode = pId
 
-                        cal.set(Calendar.DAY_OF_WEEK,dayOfWeekCode) //알람이 울릴 "요일" 설정
-                        cal.set(Calendar.HOUR_OF_DAY, hourOfDay.toInt()) //알람이 울릴 "시간" 설정
-                        cal.set(Calendar.MINUTE, minute.toInt()) //알림이 울릴 "분" 설정
-
-                        viewModel.updateDayOfWeek(alarm.dayOfWeek,alarm.id)
-
+                        }
                         val alarmManager = mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
                         val alarmIntent = Intent(mContext, AlarmReceiver::class.java)
-                        alarmIntent.action="sendNotification"
-                        setPendingIntent(alarmManager, alarmIntent, cal, position)
+                        alarmIntent.action = "sendNotification"
+                        setPendingIntent(alarmManager, alarmIntent, cal, i)
+                    } else { //요일이 체크 되어있지 않은 상태라면
+                        //알람을 삭제해야한다.
+                        val alarmManager =
+                            mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                        val intent = Intent(mContext, AlarmReceiver::class.java)
+                        intent.action = "sendNotification"
+
+                        val pendingIntent = PendingIntent.getBroadcast(
+                            mContext
+                            , alarm.dayOfWeek[i].requestCode //해당 요일에 등록되어있던 알람요청 코드
+                            , intent
+                            , PendingIntent.FLAG_CANCEL_CURRENT
+                        )
+                        alarmManager.cancel(pendingIntent)
+                        alarm.dayOfWeek[i].requestCode = -1 //해당 요일에 알람 requestCode 삭제
                     }
                 }
+//            //두개의 for문을 병렬적으로 실행해보기 위해 사용하는 "Coroutine"
+//            runBlocking { //runBlocking 블록 안의 모든 비동기 작업이 끝나야 바깥 쪽 코드가 실행된다.
+//                launch {
+//                    for (i in offAlarmDayList.indices) {
+//                        //alarm : 요일을 수정하기 전 "Alarm"객체
+//                        //if문 : 알람이 울리는 요일을 수정해서 on으로 바꿨을 시
+//                        val position = offAlarmDayList[i]
+//                        if (alarm.dayOfWeek[position].isCheck) {
+//                            newRegisterCount++
+//                            //바꾼 요일만 새로 알람을 등록해준다.
+//                            val time = alarm.time
+//                            val arr = time?.split(":")
+//                            val hourOfDay = arr!!.get(0) //알람이 울릴 "시간"
+//                            val minute = arr!!.get(1) //알람이 울릴 "분"
+//                            val cal = Calendar.getInstance()
+//                            val dayOfWeekCode = position + 2 //요일 코드
+//
+//                            cal.set(Calendar.DAY_OF_WEEK, dayOfWeekCode) //알람이 울릴 "요일" 설정
+//                            cal.set(Calendar.HOUR_OF_DAY, hourOfDay.toInt()) //알람이 울릴 "시간" 설정
+//                            cal.set(Calendar.MINUTE, minute.toInt()) //알림이 울릴 "분" 설정
+//
+//                            viewModel.updateDayOfWeek(alarm.dayOfWeek, alarm.id)
+//
+//                            val alarmManager =
+//                                mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+//                            val alarmIntent = Intent(mContext, AlarmReceiver::class.java)
+//                            alarmIntent.action = "sendNotification"
+//                            setPendingIntent(alarmManager, alarmIntent, cal, position)
+//                        }
+//                    }
+//                }
+//                for (i in onAlarmDayList.indices) {
+//                    Log.d("ABC", "for $i")
+//                    val position = onAlarmDayList[i] //알람이 "on"되어있던 요일의 인덱스
+//                    if (!alarm.dayOfWeek[position].isCheck) { //알람이 "off"로 바뀌었다면
+//                        //알람을 삭제해야한다.
+//                        val alarmManager =
+//                            mContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+//                        val intent = Intent(mContext, AlarmReceiver::class.java)
+//                        intent.action = "sendNotification"
+//
+//                        val pendingIntent = PendingIntent.getBroadcast(
+//                            mContext
+//                            , alarm.dayOfWeek[position].requestCode //해당 요일에 등록되어있던 알람요청 코드
+//                            , intent
+//                            , PendingIntent.FLAG_CANCEL_CURRENT
+//                        )
+//                        alarmManager.cancel(pendingIntent)
+//                        alarm.dayOfWeek[position].requestCode = -1 //해당 요일에 알람 requestCode 삭제
+//                    }
+//                }
+//
+//            }
+            if (newRegisterCount > 0) {
+                Log.d("newRegister", "newRegister$newRegisterCount")
+                alarm.isOn = true
+            }else{
+                alarm.isOn = false
             }
 
-
-            for(i in onAlarmDayList.indices){
-                val position = onAlarmDayList[i] //알람이 "on"되어있던 요일의 인덱스
-                if(!alarm.dayOfWeek[position].isCheck){ //알람이 "off"로 바뀌었다면
-                    //알람을 삭제해야한다.
-                    val alarmManager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                    val intent = Intent(this,AlarmReceiver::class.java)
-                    intent.action = "sendNotification"
-
-                    val pendingIntent = PendingIntent.getBroadcast(
-                        this
-                        ,alarm.dayOfWeek[position].requestCode //해당 요일에 등록되어있던 알람요청 코드
-                        ,intent
-                    ,PendingIntent.FLAG_CANCEL_CURRENT)
-                    alarmManager.cancel(pendingIntent)
-                    alarm.dayOfWeek[position].requestCode = -1 //해당 요일에 알람 requestCode 삭제
-                }
-
-            }
-
-            viewModel.updateDayOfWeek(alarm.dayOfWeek, alarm.id)
+            viewModel.updateAlarm(alarm.amPm, alarm.time,alarm.isOn,alarm.dayOfWeek,alarm.id)
+//            viewModel.updateDayOfWeek(alarm.dayOfWeek, alarm.id)
             finish()
             overridePendingTransition(R.anim.none, R.anim.down_animation)
         }
@@ -175,7 +241,13 @@ class ModifyAlarmActivity : AppCompatActivity() {
             }
         })
     }
-    private fun setPendingIntent( alarmManager: AlarmManager?,alarmIntent: Intent,cal: Calendar,index: Int){
+
+    private fun setPendingIntent(
+        alarmManager: AlarmManager?,
+        alarmIntent: Intent,
+        cal: Calendar,
+        index: Int
+    ) {
         var position = index
 
         val bundle = Bundle()
@@ -183,7 +255,7 @@ class ModifyAlarmActivity : AppCompatActivity() {
         bundle.putSerializable("alarmDate", cal)
         alarmIntent.putExtra("bundle", bundle)
         Log.d("ALAMR", "setPendingIntent: ${alarm}")
-        if(position==-1){
+        if (position == -1) {
             val calendar = Calendar.getInstance()
             val dayOfWeekCode = calendar.get(Calendar.DAY_OF_WEEK) //오늘의 요일을 구한다.
             position = if (dayOfWeekCode != 1) dayOfWeekCode - 2 else 6 //요일에 맞는 인덱스 설정

@@ -59,6 +59,8 @@ class DayOfWeekAdapter(private val viewModel: BaseViewModel, val alarm: Alarm) :
         if (alarm.dayOfWeek[position].isCheck) { // 변경된 알람객체의 "isCheck" 값이 true일 경우
             val pId = (Math.random() * 100000000).toInt() //요일을 클릭하면 랜덤으로 requestCode를 생성
             alarm.dayOfWeek[position].requestCode = pId //해당 알람객체의 requestCode 값을 지정해준다.
+        }else{
+            alarm.dayOfWeek[position].requestCode = -1
         }
         viewModel.setAlarm(alarm) //프래그먼트간 공유할 alarm 객체를 업데이트
         notifyItemChanged(position) //리사이클러뷰에 변경사항 적용

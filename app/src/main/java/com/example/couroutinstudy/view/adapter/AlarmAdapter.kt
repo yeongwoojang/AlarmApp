@@ -124,8 +124,8 @@ class AlarmAdapter(private val mContext: Context, private val viewModel: BaseVie
             val hourOfDay = arr!!.get(0) //알람이 울릴 "시간"
             val minute = arr!!.get(1) //알람이 울릴 "분"
 
-            for (i in 0..6) { //선택한 Alarm 아이템의 예약된 모든 알람을 Cancel
-                if (items[position].dayOfWeek[i].requestCode != -1) {
+            for (i in 0..6) { //선택한 Alarm 아이템의 예약된 기록이있는 요일에 알람 재예약
+               if (items[position].dayOfWeek[i].requestCode != -1) {
                     cal.set(Calendar.DAY_OF_WEEK, i + 2) // Calendar 객체에 Alarm 객체에 체크된 요일을 Setting
                     // Calendar 객체에 알람이 울릴 시간과 분을 지정
                     cal.set(Calendar.HOUR_OF_DAY, hourOfDay.toInt())

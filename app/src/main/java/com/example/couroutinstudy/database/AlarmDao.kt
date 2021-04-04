@@ -21,6 +21,10 @@ interface AlarmDao {
     @Query("UPDATE ALARM SET dayOfWeek= :dayOfWeek WHERE id=:alarmId")
     suspend fun updateDayOfWeek(dayOfWeek: List<DayOfWeek>, alarmId :Int)
 
+
+    @Query("UPDATE ALARM SET amPm = :amPm, time =:time, isOn = :onOff, dayOfWeek = :dayOfWeek WHERE id= :alarmId")
+    suspend fun updateAlarm(amPm : String?, time : String?, onOff : Boolean, dayOfWeek: List<DayOfWeek>, alarmId :Int)
+
     @Insert
     suspend fun insertRequestCode(requestCode: AlarmRequest)
 

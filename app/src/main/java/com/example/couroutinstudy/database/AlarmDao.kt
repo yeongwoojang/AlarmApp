@@ -12,6 +12,9 @@ interface AlarmDao {
     @Query("SELECT *FROM ALARM")
     fun getAll() : LiveData<List<Alarm>>
 
+    @Query("SELECT *FROM ALARM")
+    fun bootGetAll() : List<Alarm>
+
     @Insert
     suspend fun insert(alarm: Alarm) : Long
 

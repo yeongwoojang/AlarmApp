@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -25,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView.ItemAnimator
 import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.work.WorkManager
 import com.example.couroutinstudy.R
+import com.example.couroutinstudy.database.AppDatabase
 import com.example.couroutinstudy.databinding.ActivityMainBinding
 import com.example.couroutinstudy.model.vo.Alarm
 import com.example.couroutinstudy.model.vo.DayOfWeek
@@ -34,6 +36,10 @@ import com.example.couroutinstudy.view.fragment.AlarmMainFrag
 import com.example.couroutinstudy.view.fragment.DayOfWeekFrag
 import com.example.couroutinstudy.viewmodel.BaseViewModel
 import com.sothree.slidinguppanel.SlidingUpPanelLayout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MainActivity : AppCompatActivity() {
@@ -52,7 +58,6 @@ class MainActivity : AppCompatActivity() {
         const val DAY_OF_WEEK_FRAGMENT = 1
         const val SOUNT_FRAGMENT = 2
     }
-
     private lateinit var viewModel: BaseViewModel //androidx.activity 패키지에 정의된 함수를 이용한 뷰모델 초기화 방법
     private lateinit var fragmentManager: FragmentManager
     private lateinit var fragmentTransaction: FragmentTransaction
@@ -78,6 +83,9 @@ class MainActivity : AppCompatActivity() {
         alarmMainFrag = AlarmMainFrag()
         dayOfWeekFrag = DayOfWeekFrag()
         initFragment(alarmMainFrag) //초기 slidingView 설정
+
+
+
 
         //context를 사용 가능한 시점에서 늦은 뷰모델 초기화 방법
 //        viewModel = ViewModelProvider(this)[BaseViewModel::class.java]

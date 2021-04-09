@@ -40,6 +40,10 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
         return db!!.alarmDao().getAll()
     }
 
+    fun bootgetAll() : List<Alarm>{
+        return db!!.alarmDao().bootGetAll()
+    }
+
     fun deleteAll() {
         viewModelScope.launch(Dispatchers.IO) {
             db!!.alarmDao().deleteAll()

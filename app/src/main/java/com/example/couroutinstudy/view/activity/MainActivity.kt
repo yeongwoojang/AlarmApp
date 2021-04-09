@@ -84,9 +84,6 @@ class MainActivity : AppCompatActivity() {
         dayOfWeekFrag = DayOfWeekFrag()
         initFragment(alarmMainFrag) //초기 slidingView 설정
 
-
-
-
         //context를 사용 가능한 시점에서 늦은 뷰모델 초기화 방법
 //        viewModel = ViewModelProvider(this)[BaseViewModel::class.java]
         val adapter = AlarmAdapter(this, viewModel)

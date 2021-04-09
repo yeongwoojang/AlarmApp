@@ -23,6 +23,7 @@ import com.example.couroutinstudy.util.work.TestWorker
 import com.example.couroutinstudy.view.activity.AlarmActivity
 import com.example.couroutinstudy.view.activity.MainActivity
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import java.util.*
@@ -91,34 +92,39 @@ class AlarmReceiver : BroadcastReceiver() {
                     //Bundle로 넘어온 Alarm 객체에 몇요일 마다 알람이 울리게 설정 되어있는지 체크
                     for (i in 0..6) {
                         if (alarm.dayOfWeek[i].isCheck) { // Alarm 객체에  해당 요일 체크되어 있다면
-                            if (alarmDate.get(Calendar.DAY_OF_WEEK) == i + 2 && alarmDate.get(
-                                    Calendar.DAY_OF_WEEK
-                                ) != 1
-                            ) {
+                            //이 조건문은 alarmDate(알람에 설정된 시간)의 Calendar.DayOfWeek값과 alarm.dayOfWeek의 인덱스 값을 맞추기 위해 있는 것이다.
+                            //ex : alarmDate의 DAY_OF_WEEK가 3이면 화요일 이므로 alarm.dayOfWeek[index].isCheck가 true인데 그 중에서도
+                            //index가 1인 것이 isCheck가 true인지를 검사하는 것이다.
+                            if (alarmDate.get(Calendar.DAY_OF_WEEK) == i + 2 && alarmDate.get(Calendar.DAY_OF_WEEK) != 1){
                                 //오늘과 같은 요일에 체크되어있는데 일요일이 아닐 시
-                                Log.d(
-                                    TAG,
-                                    "onReceive언제 알림등록: ${alarmDate.get(Calendar.DAY_OF_WEEK)}"
-                                )
-                                registerAlarm(
-                                    alarm,
-                                    alarmDate,
-                                    context
-                                ) //다음 주 같은 시간 같은 요일에 다시 알람 등록
+                                Log.d(TAG,"onReceive언제 알림등록: ${alarmDate.get(Calendar.DAY_OF_WEEK)}")
+                                registerAlarm( alarm,alarmDate,context) //다음 주 같은 시간 같은 요일에 다시 알람 등록
                                 break
                             } else if (alarmDate.get(Calendar.DAY_OF_WEEK) == 1 && i == 6) {
                                 //오늘과 같은 요일에 체크되어있는데 일요일 일시
-                                Log.d(
-                                    TAG,
-                                    "onReceive언제 알림등록: ${alarmDate.get(Calendar.DAY_OF_WEEK)}"
-                                )
-                                registerAlarm(
-                                    alarm,
-                                    alarmDate,
-                                    context
-                                ) //다음 주 같은 시간 같은 요일에 다시 알람 등록
+                                Log.d(TAG,"onReceive언제 알림등록: ${alarmDate.get(Calendar.DAY_OF_WEEK)}")
+                                registerAlarm(alarm,alarmDate,context) //다음 주 같은 시간 같은 요일에 다시 알람 등록
                                 break
                             }
+                        }else{
+                            if (alarmDate.get(Calendar.DAY_OF_WEEK) == i + 2 && alarmDate.get(Calendar.DAY_OF_WEEK) != 1){
+                                alarm.dayOfWeek[i].requestCode = -1
+                                Log.d(TAG, "onReceive: 알람 리퀘스트 코드 -1로 초기화")
+                                Log.d(TAG, "초기화 : ${alarm.dayOfWeek[i].dayOfWeek}")
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    db!!.alarmDao().updateDayOfWeek(alarm.dayOfWeek,alarm.id)
+                                }
+                            }else if(alarmDate.get(Calendar.DAY_OF_WEEK) == 1 && i == 6){
+                                alarm.dayOfWeek[i].requestCode = -1
+                                Log.d(TAG, "onReceive: 알람 리퀘스트 코드 -1로 초기화")
+                                Log.d(TAG, "초기화 : ${alarm.dayOfWeek[i].dayOfWeek}")
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    db!!.alarmDao().updateDayOfWeek(alarm.dayOfWeek,alarm.id)
+                                }
+                            }
+
+
+
                         }
                     } //체크된 요일이 없다면 그냥 넘어간다.
 

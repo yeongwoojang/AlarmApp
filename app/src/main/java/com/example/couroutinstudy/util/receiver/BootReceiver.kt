@@ -29,6 +29,7 @@ class BootReceiver : BroadcastReceiver() {
                 val cal = Calendar.getInstance()
                 val curDayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
                 val index = if (curDayOfWeek != 1) curDayOfWeek - 2 else 6
+
                 for (i in 0..alarmList.size - 1) {
                     if (alarmList[i].isOn && alarmList[i].dayOfWeek[index].requestCode!=-1){
                         alarm = alarmList[i]

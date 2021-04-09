@@ -71,14 +71,12 @@ class AlarmActivity : AppCompatActivity() {
                          workInfo = info[i]
                     }
                 }
-                Log.d("MyWorkInfo", "onCreate: ${workInfo}")
                 if (workInfo != null) {
                     if (workInfo.state != WorkInfo.State.CANCELLED) {
                         val value = workInfo.progress.getInt("Progress", 777)
                         if (value != 777) {
                             val progress =value
                             binding.circleProgressbar.progress = progress
-                            Log.d("liveValue", "onCreate: $value")
                         }
                     }
 

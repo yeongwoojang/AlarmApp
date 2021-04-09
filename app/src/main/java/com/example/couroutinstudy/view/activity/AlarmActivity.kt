@@ -105,6 +105,11 @@ class AlarmActivity : AppCompatActivity() {
 
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
+    }
+
     //화면이 꺼져있을 때 액티비티가 실행될 때 화면을 깨우기 위한 메소드
     fun Activity.turnScreenOnAndKeyguardOff() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
